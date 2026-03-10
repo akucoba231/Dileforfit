@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DILEFORFIT Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === CSS RESET & BASE STYLES === */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: #e0e0e0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* === MOBILE CONTAINER (WebView Simulation) === */
+        #app {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 414px; /* Lebar standar layar HP */
+            height: 100vh;
+            max-height: 896px;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === HEADER & LOGO === */
+        .header {
+            background: linear-gradient(135deg, #1e88e5, #1565c0);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .logo-title { font-size: 24px; font-weight: 700; letter-spacing: 1px; color: #ffeb3b; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .logo-subtitle { font-size: 10px; opacity: 0.9; }
+
+        /* === VIEWS === */
+        .view { display: none; padding: 20px; flex: 1; flex-direction: column; }
+        .view.active { display: flex; }
+
+        /* === TYPOGRAPHY & UTILS === */
+        h2 { color: #333; margin-bottom: 15px; font-size: 18px; text-align: center; }
+        .text-center { text-align: center; }
+        .mb-10 { margin-bottom: 10px; }
+        .mt-20 { margin-top: 20px; }
+
+        /* === BUTTONS & INPUTS === */
+        input, select {
+            width: 100%; padding: 12px 15px; margin-bottom: 15px;
+            border: 1px solid #ccc; border-radius: 10px; font-size: 14px; outline: none;
+        }
+        input:focus { border-color: #1e88e5; }
+        .btn {
+            width: 100%; padding: 15px; border: none; border-radius: 25px;
+            font-size: 16px; font-weight: 600; cursor: pointer; color: white;
+            transition: 0.2s; text-align: center; margin-bottom: 10px;
+        }
+        .btn-primary { background-color: #1e88e5; box-shadow: 0 4px #1565c0; }
+        .btn-primary:active { transform: translateY(4px); box-shadow: none; }
+        .btn-orange { background-color: #ff9800; box-shadow: 0 4px #f57c00; }
+        .btn-orange:active { transform: translateY(4px); box-shadow: none; }
+        .btn-danger { background-color: #e53935; box-shadow: 0 4px #c62828; }
+        .btn-outline { background-color: transparent; border: 2px solid #1e88e5; color: #1e88e5; box-shadow: none;}
+        
+        /* === ROLE SELECTOR === */
+        .role-tabs { display: flex; margin-bottom: 20px; background: #f1f1f1; border-radius: 10px; overflow: hidden;}
+        .role-tab { flex: 1; padding: 10px; text-align: center; font-size: 12px; font-weight: 600; cursor: pointer; color: #666; }
+        .role-tab.active { background: #1e88e5; color: white; }
+
+        /* === CARDS (Dashboard Menus) === */
+        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card-menu {
+            background: #fff; border: 1px solid #e0e0e0; border-radius: 15px; padding: 20px 10px;
+            text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; display: flex; flex-direction: column; align-items: center;
+        }
+        .card-menu i { font-size: 30px; margin-bottom: 10px; color: #1e88e5; }
+        .card-menu span { font-size: 12px; font-weight: 600; color: #333; }
+
+        /* === LISTS === */
+        .list-item { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #1e88e5; }
+        .list-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+        .list-desc { font-size: 12px; color: #666; }
+
+        /* === SPLASH SCREEN === */
+        #view-splash { justify-content: center; align-items: center; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23e3f2fd" width="100" height="100"/></svg>') no-repeat center center/cover;}
+        .splash-img { width: 150px; height: 150px; background: #fff; border-radius: 50%; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; font-size: 60px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="header" id="main-header" style="display: none;">
+        <div class="logo-title">DILEFORFIT</div>
+        <div class="logo-subtitle">Digital Learning for Physical Fitness</div>
+        <div id="user-info" style="font-size: 12px; margin-top: 5px; font-weight: normal;"></div>
+    </div>
+
+    <div id="view-splash" class="view active">
+        <div class="logo-title" style="font-size: 32px; color: #1e88e5; text-shadow: none;">DILEFORFIT</div>
+        <div class="logo-subtitle" style="color: #666; margin-bottom: 30px;">Digital Learning for Physical Fitness</div>
+        <div class="splash-img">🏃‍♂️🏃‍♀️</div>
+        <button class="btn btn-primary" onclick="showView('view-login')">START</button>
+    </div>
+
+    <div id="view-login" class="view">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div class="logo-title" style="color: #1e88e5; text-shadow: none;">Login Sistem</div>
+        </div>
+        
+        <div class="role-tabs">
+            <div class="role-tab active" onclick="setLoginRole('Siswa', this)">Siswa</div>
+            <div class="role-tab" onclick="setLoginRole('Guru', this)">Guru</div>
+            <div class="role-tab" onclick="setLoginRole('Admin', this)">Admin</div>
+        </div>
+
+        <input type="text" id="login-username" placeholder="Username">
+        <input type="password" id="login-password" placeholder="Password">
+        <button class="btn btn-orange" onclick="doLogin()">Masuk</button>
+        <p class="text-center mt-20" style="font-size: 12px;">Akun Dummy:<br>Siswa: siswa1/123 | Guru: guru1/123 | Admin: admin/123</p>
+    </div>
+
+    <div id="view-dash-siswa" class="view">
+        <h2>Dashboard Siswa</h2>
+        <div class="grid-menu">
+            <div class="card-menu" onclick="showView('view-siswa-assesment-token')">
+                <span>📝<br>Assesment</span>
+            </div>
+            <div class="card-menu" onclick="showSiswaProgress()">
+                <span>📈<br>Progress Saya</span>
+            </div>
+            <div class="card-menu" onclick="alert('Fitur Pengaturan Akun')">
+                <span>⚙️<br>Pengaturan</span>
+            </div>
+            <div class="card-menu" onclick="doLogout()">
+                <span>🚪<br>Keluar</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-siswa-assesment-token" class="view">
+        <h2>Mulai Assesment</h2>
+        <p style="font-size: 12px; text-align: center; margin-bottom: 20px;">Masukkan token yang diberikan oleh Guru penanggung jawab.</p>
+        <input type="text" id="input-token" placeholder="Masukkan Token (Misal: ayoMulai)">
+        <button class="btn btn-primary" onclick="verifyToken()">Cari Assesment</button>
+        <button class="btn btn-outline mt-20" onclick="showView('view-dash-siswa')">Kembali</button>
+    </div>
+
+    <div id="view-siswa-do-assesment" class="view">
+        <h2 id="do-ass-title">Assesment Berjalan</h2>
+        <p style="font-size: 12px; color: red; text-align: center; margin-bottom: 10px;">Teman sejawat mengisi nilai aktual di bawah ini:</p>
+        <div id="form-assesment-units"></div>
+        <button class="btn btn-orange mt-20" onclick="saveAssesment()">Simpan Hasil</button>
+        <button class="btn btn-outline" onclick="showView('view-dash-siswa')">Batal</button>
+    </div>
+
+    <div id="view-siswa-progress" class="view">
+        <h2>Riwayat & Progress</h2>
+        <div id="list-progress-siswa" style="flex:1; overflow-y:auto;"></div>
+        <button class="btn btn-outline mt-20" onclick="showView('view-dash-siswa')">Kembali</button>
+    </div>
+
+    <div id="view-dash-guru" class="view">
+        <h2>Dashboard Guru</h2>
+        <div class="grid-menu">
+            <div class="card-menu" onclick="showView('view-guru-buat-assesment')">
+                <span>➕<br>Buat Assesment</span>
+            </div>
+            <div class="card-menu" onclick="showGuruRiwayat()">
+                <span>📋<br>Riwayat Assesment</span>
+            </div>
+            <div class="card-menu" onclick="alert('Fitur Pengaturan Akun')">
+                <span>⚙️<br>Pengaturan</span>
+            </div>
+            <div class="card-menu" onclick="doLogout()">
+                <span>🚪<br>Keluar</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-guru-buat-assesment" class="view">
+        <h2>Buat Assesment Baru</h2>
+        <input type="text" id="buat-ass-nama" placeholder="Nama Assesment (cth: Ujian Sem 1)">
+        <input type="text" id="buat-ass-token" placeholder="Token Akses (cth: kelas4A)">
+        <p style="font-size: 14px; margin-bottom: 10px; font-weight: bold;">Pilih Unit (Maks 5):</p>
+        <div id="buat-ass-units" style="font-size: 14px; margin-bottom: 20px;">
+            </div>
+        <button class="btn btn-primary" onclick="createAssesment()">Simpan & Aktifkan</button>
+        <button class="btn btn-outline" onclick="showView('view-dash-guru')">Kembali</button>
+    </div>
+
+    <div id="view-guru-riwayat" class="view">
+        <h2>Riwayat Assesment</h2>
+        <div id="list-guru-assesments" style="flex:1; overflow-y:auto;"></div>
+        <button class="btn btn-outline mt-20" onclick="showView('view-dash-guru')">Kembali</button>
+    </div>
+
+    <div id="view-dash-admin" class="view">
+        <h2>Administrator</h2>
+        <div class="grid-menu">
+            <div class="card-menu" onclick="alert('Menampilkan daftar seluruh User')">
+                <span>👥<br>Manajemen Pengguna</span>
+            </div>
+            <div class="card-menu" onclick="alert('Menampilkan CRUD Master Unit Kebugaran')">
+                <span>🏋️<br>Setelan Unit</span>
+            </div>
+            <div class="card-menu" onclick="alert('Menampilkan Semua Riwayat Global')">
+                <span>🗂️<br>Riwayat Global</span>
+            </div>
+            <div class="card-menu" onclick="doLogout()">
+                <span>🚪<br>Keluar</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /* ==============================================
+       DATABASE DUMMY (LOCAL STORAGE INIT)
+       ============================================== */
+        /* ==============================================
+       DATABASE DUMMY (LOCAL STORAGE INIT)
+       ============================================== */
+    const defaultData = {
+        users: [
+            { id: 1, role: 'Admin', nama: 'Admin Pusat', username: 'admin', password: '123' },
+            { id: 2, role: 'Guru', nama: 'Bapak Sigit', username: 'guru1', password: '123' },
+            { id: 3, role: 'Siswa', nama: 'Budi Santoso', kelas: 'XI IPA 1', jk: 'L', username: 'siswa1', password: '123' },
+            { id: 4, role: 'Siswa', nama: 'Siti Aminah', kelas: 'XI IPA 1', jk: 'P', username: 'siswi1', password: '123' } // Akun siswi perempuan
+        ],
+        units: [
+            { id: 1, nama: 'Sprint 50m (Detik)', tipe: 'waktu' }, // tipe waktu = semakin kecil semakin baik
+            { id: 2, nama: 'Sit Up 60 Detik (Kali)', tipe: 'jumlah' }, // tipe jumlah = semakin besar semakin baik
+            { id: 3, nama: 'Pull Up / Gantung (Kali/Detik)', tipe: 'jumlah' },
+            { id: 4, nama: 'Push Up (Kali)', tipe: 'jumlah' }
+        ],
+        criteria: [
+            // Kriteria Dummy Lari Sprint 50m
+            { id_unit: 1, jk: 'L', batas_1: 5.9, batas_2: 7.0, batas_3: 8.4, batas_4: 10.4, feedback_min: 'Lakukan Latihan Plyometric dan Fartlek untuk power tungkai.' },
+            { id_unit: 1, jk: 'P', batas_1: 7.7, batas_2: 8.7, batas_3: 10.4, batas_4: 11.9, feedback_min: 'Latihan lari interval pendek secara rutin.' },
+            
+            // Kriteria Dummy Sit Up
+            { id_unit: 2, jk: 'L', batas_1: 41, batas_2: 30, batas_3: 21, batas_4: 10, feedback_min: 'Perkuat otot inti perut dengan variasi plank dan crunch.' },
+            { id_unit: 2, jk: 'P', batas_1: 29, batas_2: 20, batas_3: 10, batas_4: 3, feedback_min: 'Mulai dengan variasi sit-up berbantu atau knee-crunches.' },
+
+            // Kriteria Dummy Pull Up
+            { id_unit: 3, jk: 'L', batas_1: 19, batas_2: 14, batas_3: 9, batas_4: 3, feedback_min: 'Latih kekuatan punggung dan lengan dengan resistance band.' },
+            { id_unit: 3, jk: 'P', batas_1: 41, batas_2: 22, batas_3: 10, batas_4: 3, feedback_min: 'Lakukan latihan ketahanan gantung siku (isometric hold).' },
+
+            // Kriteria Dummy Push Up
+            { id_unit: 4, jk: 'L', batas_1: 40, batas_2: 30, batas_3: 20, batas_4: 10, feedback_min: 'Tingkatkan repetisi push-up dinding bertahap ke lantai.' },
+            { id_unit: 4, jk: 'P', batas_1: 30, batas_2: 20, batas_3: 10, batas_4: 5, feedback_min: 'Latih knee-push up (push up bertumpu lutut) secara konsisten.' }
+        ],
+        assessments: [
+            { id: 1, id_guru: 2, tanggal: '2026-03-10', nama: 'Tes Kemampuan Dasar', token: 'ayoMulai', status: 'Aktif', unit_ids: [1, 2, 3, 4] }
+        ],
+        riwayat: []
+    };
+
+    // Init Local Storage (Paksa reset untuk muat data baru ini selama tahap prototype)
+    // Hapus baris if(!localStorage...) di kode sebelumnya, ganti dengan ini agar selalu fresh saat di-refresh:
+    localStorage.setItem('dileforfit_db', JSON.stringify(defaultData)); 
+    function getDB() { return JSON.parse(localStorage.getItem('dileforfit_db')); }
+    function saveDB(data) { localStorage.setItem('dileforfit_db', JSON.stringify(data)); }
+
+    /* ==============================================
+       LOGIKA PENILAIAN OTOMATIS BERDASARKAN KRITERIA
+       ============================================== */
+    function hitungNilaiTKJI(nilai_aktual, unit, kriteria_jk) {
+        let poin = 1;
+        let kategori = "Kurang Sekali";
+        
+        if (unit.tipe === 'waktu') {
+            // Waktu: Semakin kecil nilainya (detik), semakin baik poinnya
+            if (nilai_aktual <= kriteria_jk.batas_1) { poin = 5; kategori = "Sangat Baik"; }
+            else if (nilai_aktual <= kriteria_jk.batas_2) { poin = 4; kategori = "Baik"; }
+            else if (nilai_aktual <= kriteria_jk.batas_3) { poin = 3; kategori = "Cukup"; }
+            else if (nilai_aktual <= kriteria_jk.batas_4) { poin = 2; kategori = "Kurang"; }
+        } else {
+            // Jumlah repetisi: Semakin besar nilainya (kali), semakin baik poinnya
+            if (nilai_aktual >= kriteria_jk.batas_1) { poin = 5; kategori = "Sangat Baik"; }
+            else if (nilai_aktual >= kriteria_jk.batas_2) { poin = 4; kategori = "Baik"; }
+            else if (nilai_aktual >= kriteria_jk.batas_3) { poin = 3; kategori = "Cukup"; }
+            else if (nilai_aktual >= kriteria_jk.batas_4) { poin = 2; kategori = "Kurang"; }
+        }
+        return { poin, kategori };
+    }
+
+    function saveAssesment() {
+        const db = getDB();
+        let nilai_unit = [];
+        let totalPoin = 0;
+        let catatanRekomendasi = [];
+
+        currentAssessmentSession.unit_ids.forEach(uid => {
+            const unitDef = db.units.find(u => u.id === uid);
+            const kriteria = db.criteria.find(c => c.id_unit === uid && c.jk === currentUser.jk); // Pencocokan JK
+            const val = parseFloat(document.getElementById(`unit-val-${uid}`).value) || 0;
+            
+            // Konversi nilai aktual ke poin dan kategori
+            let hasil = hitungNilaiTKJI(val, unitDef, kriteria);
+            
+            // Jika hasilnya Kurang atau Kurang Sekali, tarik feedback
+            if (hasil.poin <= 2) {
+                catatanRekomendasi.push(`- ${unitDef.nama}: ${kriteria.feedback_min}`);
+            }
+
+            nilai_unit.push({ 
+                unit_id: uid, 
+                nama_unit: unitDef.nama, 
+                nilai_aktual: val, 
+                poin: hasil.poin, 
+                kategori: hasil.kategori 
+            });
+            totalPoin += hasil.poin;
+        });
+
+        // Tentukan Kategori Akhir Rata-rata
+        const rerataPoin = totalPoin / currentAssessmentSession.unit_ids.length;
+        let kategoriAkhir = "Kurang Sekali";
+        if (rerataPoin >= 4.5) kategoriAkhir = "Sangat Baik";
+        else if (rerataPoin >= 3.5) kategoriAkhir = "Baik";
+        else if (rerataPoin >= 2.5) kategoriAkhir = "Cukup";
+        else if (rerataPoin >= 1.5) kategoriAkhir = "Kurang";
+
+        let finalCatatan = catatanRekomendasi.length > 0 
+            ? "Fokus latihan perbaikan: \n" + catatanRekomendasi.join("\n") 
+            : "Pertahankan performa Anda! Lakukan latihan pemeliharaan kebugaran rutin.";
+
+        const newRiwayat = {
+            id_riwayat: Date.now(),
+            id_assesment: currentAssessmentSession.id,
+            id_siswa: currentUser.id,
+            tanggal: new Date().toISOString().split('T')[0],
+            token: currentAssessmentSession.token,
+            nilai_unit: nilai_unit,
+            nilai_rerata: rerataPoin.toFixed(1),
+            kategori_akhir: kategoriAkhir,
+            catatan: finalCatatan
+        };
+
+        db.riwayat.push(newRiwayat);
+        saveDB(db);
+        
+        alert(`Assesment tersimpan!\nSkor Akhir: ${kategoriAkhir} (${rerataPoin.toFixed(1)}/5.0)`);
+        document.getElementById('input-token').value = '';
+        showView('view-dash-siswa');
+    }
+
+
+    // Init Local Storage
+    if (!localStorage.getItem('dileforfit_db')) {
+        localStorage.setItem('dileforfit_db', JSON.stringify(defaultData));
+    }
+
+    function getDB() { return JSON.parse(localStorage.getItem('dileforfit_db')); }
+    function saveDB(data) { localStorage.setItem('dileforfit_db', JSON.stringify(data)); }
+
+    // State Aplikasi
+    let currentUser = null;
+    let activeRoleTab = 'Siswa';
+    let currentAssessmentSession = null; // Menyimpan assesment yang sedang dikerjakan siswa
+
+    /* ==============================================
+       NAVIGATION LOGIC
+       ============================================== */
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        
+        // Atur visibilitas Header
+        const header = document.getElementById('main-header');
+        if (viewId === 'view-splash' || viewId === 'view-login') {
+            header.style.display = 'none';
+        } else {
+            header.style.display = 'block';
+            document.getElementById('user-info').innerText = currentUser ? `Halo, ${currentUser.nama} (${currentUser.role})` : '';
+        }
+    }
+
+    /* ==============================================
+       AUTH LOGIC
+       ============================================== */
+    function setLoginRole(role, element) {
+        activeRoleTab = role;
+        document.querySelectorAll('.role-tab').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    function doLogin() {
+        const un = document.getElementById('login-username').value;
+        const pw = document.getElementById('login-password').value;
+        const db = getDB();
+
+        const user = db.users.find(u => u.username === un && u.password === pw && u.role === activeRoleTab);
+        
+        if (user) {
+            currentUser = user;
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            
+            if (user.role === 'Siswa') showView('view-dash-siswa');
+            else if (user.role === 'Guru') showView('view-dash-guru');
+            else if (user.role === 'Admin') showView('view-dash-admin');
+        } else {
+            alert('Username atau Password salah untuk role ' + activeRoleTab);
+        }
+    }
+
+    function doLogout() {
+        currentUser = null;
+        showView('view-login');
+    }
+
+    /* ==============================================
+       SISWA LOGIC
+       ============================================== */
+    function verifyToken() {
+        const token = document.getElementById('input-token').value;
+        const db = getDB();
+        const assessment = db.assessments.find(a => a.token === token && a.status === 'Aktif');
+
+        if (assessment) {
+            currentAssessmentSession = assessment;
+            document.getElementById('do-ass-title').innerText = assessment.nama;
+            
+            // Build Form
+            let formHtml = '';
+            assessment.unit_ids.forEach(uid => {
+                const unitDef = db.units.find(u => u.id === uid);
+                formHtml += `
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size:12px; font-weight:bold;">${unitDef.nama}</label>
+                        <input type="number" id="unit-val-${uid}" placeholder="Masukkan Nilai Aktual">
+                    </div>
+                `;
+            });
+            document.getElementById('form-assesment-units').innerHTML = formHtml;
+            showView('view-siswa-do-assesment');
+        } else {
+            alert('Token tidak ditemukan atau sudah tidak aktif.');
+        }
+    }
+
+
+    function showSiswaProgress() {
+        const db = getDB();
+        const riwayatKu = db.riwayat.filter(r => r.id_siswa === currentUser.id);
+        
+        let html = '';
+        if (riwayatKu.length === 0) {
+            html = '<p class="text-center" style="font-size:12px;">Belum ada riwayat assesment.</p>';
+        } else {
+            riwayatKu.forEach(r => {
+                const assName = db.assessments.find(a => a.id === r.id_assesment)?.nama || 'Unknown';
+                html += `
+                <div class="list-item">
+                    <div class="list-title">${assName} (Token: ${r.token})</div>
+                    <div class="list-desc">Tanggal: ${r.tanggal}</div>
+                    <div class="list-desc" style="color:#1e88e5; font-weight:bold;">Skor Rerata: ${r.nilai_rerata}</div>
+                    <div class="list-desc" style="margin-top:5px; font-style:italic;">Catatan: ${r.catatan}</div>
+                </div>`;
+            });
+        }
+        document.getElementById('list-progress-siswa').innerHTML = html;
+        showView('view-siswa-progress');
+    }
+
+    /* ==============================================
+       GURU LOGIC
+       ============================================== */
+    // Saat buka form Buat Assesment, render checkbox Unit
+    document.querySelector('.card-menu[onclick="showView(\'view-guru-buat-assesment\')"]').addEventListener('click', () => {
+        const db = getDB();
+        let html = '';
+        db.units.forEach(u => {
+            html += `<label style="display:block; margin-bottom:5px;"><input type="checkbox" class="check-unit" value="${u.id}"> ${u.nama}</label>`;
+        });
+        document.getElementById('buat-ass-units').innerHTML = html;
+    });
+
+    function createAssesment() {
+        const nama = document.getElementById('buat-ass-nama').value;
+        const token = document.getElementById('buat-ass-token').value;
+        
+        const checkboxes = document.querySelectorAll('.check-unit:checked');
+        let selectedUnits = [];
+        checkboxes.forEach(cb => selectedUnits.push(parseInt(cb.value)));
+
+        if (!nama || !token || selectedUnits.length === 0) {
+            alert('Mohon isi nama, token, dan pilih minimal 1 unit!');
+            return;
+        }
+        if (selectedUnits.length > 5) {
+            alert('Maksimal hanya 5 unit assesment!');
+            return;
+        }
+
+        const db = getDB();
+        // Cek token duplikat
+        if(db.assessments.find(a => a.token === token)) {
+            alert('Token sudah digunakan, gunakan token lain.');
+            return;
+        }
+
+        const newAss = {
+            id: Date.now(),
+            id_guru: currentUser.id,
+            tanggal: new Date().toISOString().split('T')[0],
+            nama: nama,
+            token: token,
+            status: 'Aktif',
+            unit_ids: selectedUnits
+        };
+
+        db.assessments.push(newAss);
+        saveDB(db);
+
+        alert('Assesment berhasil dibuat dan berstatus Aktif!');
+        document.getElementById('buat-ass-nama').value = '';
+        document.getElementById('buat-ass-token').value = '';
+        showView('view-dash-guru');
+    }
+
+    function showGuruRiwayat() {
+        const db = getDB();
+        // Filter assesment yang dibuat oleh guru ini
+        const myAssesments = db.assessments.filter(a => a.id_guru === currentUser.id);
+        
+        let html = '';
+        if (myAssesments.length === 0) {
+            html = '<p class="text-center" style="font-size:12px;">Belum ada assesment yang dibuat.</p>';
+        } else {
+            myAssesments.forEach(a => {
+                // Hitung berapa siswa yang sudah mengerjakan token ini
+                const countSiswa = db.riwayat.filter(r => r.id_assesment === a.id).length;
+                html += `
+                <div class="list-item">
+                    <div class="list-title">${a.nama}</div>
+                    <div class="list-desc">Tanggal: ${a.tanggal} | Token: <b>${a.token}</b></div>
+                    <div class="list-desc">Status: <span style="color:${a.status === 'Aktif' ? 'green' : 'red'}">${a.status}</span></div>
+                    <div class="list-desc" style="margin-top:5px; font-weight:bold;">Siswa Selesai: ${countSiswa} orang</div>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size:12px; margin-top:10px; border-radius:5px;" onclick="alert('Mengekspor data ke Excel/PDF untuk token ${a.token}...')">Ekspor Data</button>
+                </div>`;
+            });
+        }
+        document.getElementById('list-guru-assesments').innerHTML = html;
+        showView('view-guru-riwayat');
+    }
+
+</script>
+</body>
+</html>
