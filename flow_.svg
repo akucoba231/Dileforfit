@@ -1,0 +1,273 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2800 2200" style="background-color: #ffffff;">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+    </marker>
+  </defs>
+
+  <style>
+    .box { fill: #ffffff; stroke: #000000; stroke-width: 2.5; }
+    .box-start-end { fill: #ffffff; stroke: #000000; stroke-width: 3; }
+    .decision { fill: #ffffff; stroke: #000000; stroke-width: 2.5; }
+    .line { fill: none; stroke: #000000; stroke-width: 2; marker-end: url(#arrow); }
+    .line-no-arrow { fill: none; stroke: #000000; stroke-width: 2; }
+    .line-dash { fill: none; stroke: #000000; stroke-width: 2; stroke-dasharray: 8,8; marker-end: url(#arrow); }
+    .text-title { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: bold; fill: #000; text-anchor: middle; }
+    .text-sub { font-family: 'Arial', sans-serif; font-size: 11px; fill: #333; text-anchor: middle; }
+    .label { font-family: 'Arial', sans-serif; font-size: 12px; font-weight: bold; fill: #000; background: #fff; }
+  </style>
+
+  <ellipse cx="1300" cy="70" rx="100" ry="35" class="box-start-end" />
+  <text x="1300" y="75" class="text-title">Mulai</text>
+  <path d="M 1300 105 V 140" class="line" />
+
+  <rect x="1200" y="140" width="200" height="60" class="box" />
+  <text x="1300" y="165" class="text-title">page-home</text>
+  <text x="1300" y="185" class="text-sub">Tombol: Mulai Belajar</text>
+  <path d="M 1300 200 V 240" class="line" />
+
+  <rect x="1200" y="240" width="200" height="60" class="box" />
+  <text x="1300" y="265" class="text-title">page-login</text>
+  <text x="1300" y="285" class="text-sub">Input Username &amp; Password</text>
+  <path d="M 1300 300 V 340" class="line" />
+
+  <polygon points="1300,340 1420,390 1300,440 1180,390" class="decision" />
+  <text x="1300" y="385" class="text-title">Pilih Aksi?</text>
+  <text x="1300" y="405" class="text-sub">(Login / Daftar / Keluar)</text>
+
+  <path d="M 1420 390 H 2000 V 430" class="line" />
+  <text x="1500" y="380" class="label">Belum Punya Akun</text>
+
+  <rect x="1900" y="430" width="200" height="60" class="box" />
+  <text x="2000" y="455" class="text-title">modalPilihDaftar</text>
+  <text x="2000" y="475" class="text-sub">Pilih Role Pendaftaran</text>
+  <path d="M 2000 490 V 530" class="line" />
+
+  <polygon points="2000,530 2120,580 2000,630 1880,580" class="decision" />
+  <text x="2000" y="585" class="text-title">Daftar Sebagai?</text>
+
+  <path d="M 1880 580 H 1850 V 630" class="line" />
+  <text x="1865" y="570" class="label">Siswa</text>
+
+  <rect x="1750" y="630" width="200" height="60" class="box" />
+  <text x="1850" y="655" class="text-title">page-register-siswa</text>
+  <text x="1850" y="675" class="text-sub">Input Data &amp; Akun Siswa</text>
+  <path d="M 1850 690 V 730" class="line" />
+
+  <rect x="1750" y="730" width="200" height="60" class="box" />
+  <text x="1850" y="755" class="text-title">simpanRegistrasiSiswa()</text>
+  <text x="1850" y="775" class="text-sub">Simpan ke LocalStorage</text>
+  <path d="M 1850 790 V 820 H 1600 V 270 H 1400" class="line" /> 
+
+  <path d="M 2120 580 H 2250 V 630" class="line" />
+  <text x="2185" y="570" class="label">Guru</text>
+
+  <rect x="2150" y="630" width="200" height="60" class="box" />
+  <text x="2250" y="655" class="text-title">page-register-guru</text>
+  <text x="2250" y="675" class="text-sub">Input Data &amp; NIP Guru</text>
+  <path d="M 2250 690 V 730" class="line" />
+
+  <rect x="2150" y="730" width="200" height="60" class="box" />
+  <text x="2250" y="755" class="text-title">simpanRegistrasiGuru()</text>
+  <text x="2250" y="775" class="text-sub">Simpan ke LocalStorage</text>
+  <path d="M 2250 790 V 840 H 2500 V 270 H 1400" class="line" /> 
+
+  <path d="M 1300 440 V 480" class="line" />
+  <text x="1310" y="460" class="label">Klik Masuk</text>
+
+  <polygon points="1300,480 1420,530 1300,580 1180,530" class="decision" />
+  <text x="1300" y="525" class="text-title">Kredensial Valid?</text>
+  <text x="1300" y="545" class="text-sub">(Cek Database)</text>
+
+  <path d="M 1180 530 H 1100 V 270 H 1200" class="line" />
+  <text x="1130" y="520" class="label">Tidak</text>
+
+  <path d="M 1300 580 V 630" class="line" />
+  <text x="1310" y="605" class="label">Ya</text>
+
+  <rect x="1200" y="630" width="200" height="60" class="box" />
+  <text x="1300" y="655" class="text-title">page-dashboard</text>
+  <text x="1300" y="675" class="text-sub">Render Menu Sesuai Role</text>
+  <path d="M 1300 690 V 730" class="line" />
+
+  <path d="M 1400 660 H 1550 V 700" class="line" />
+  <rect x="1500" y="700" width="100" height="40" class="box" />
+  <text x="1550" y="725" class="text-title">logout()</text>
+  <path d="M 1550 740 V 800 H 1600 V 270 H 1400" class="line-dash" />
+
+  <polygon points="1300,730 1420,780 1300,830 1180,780" class="decision" />
+  <text x="1300" y="785" class="text-title">Role Pengguna?</text>
+
+  <path d="M 1180 780 H 600 V 830" class="line" />
+  <text x="800" y="770" class="label">Mode: SISWA</text>
+
+  <polygon points="600,830 720,880 600,930 480,880" class="decision" />
+  <text x="600" y="885" class="text-title">Pilih Menu Siswa?</text>
+
+  <path d="M 480 880 H 400 V 930" class="line" />
+  <text x="410" y="870" class="label">Input Token</text>
+
+  <rect x="300" y="930" width="200" height="60" class="box" />
+  <text x="400" y="955" class="text-title">page-input-token</text>
+  <text x="400" y="975" class="text-sub">Input Token Sesi / COBACOBA</text>
+  <path d="M 400 990 V 1030" class="line" />
+
+  <polygon points="400,1030 520,1080 400,1130 280,1080" class="decision" />
+  <text x="400" y="1085" class="text-title">cekToken()</text>
+  <text x="400" y="1105" class="text-sub">Token Valid &amp; Aktif?</text>
+
+  <path d="M 280 1080 H 220 V 960 H 300" class="line" />
+  <text x="240" y="1070" class="label">Tidak</text>
+
+  <path d="M 400 1130 V 1180" class="line" />
+  <text x="410" y="1155" class="label">Ya</text>
+
+  <rect x="300" y="1180" width="200" height="60" class="box" />
+  <text x="400" y="1205" class="text-title">page-asesmen-fisik</text>
+  <text x="400" y="1225" class="text-sub">Input Nilai Form TKJI</text>
+  <path d="M 400 1240 V 1280" class="line" />
+
+  <rect x="300" y="1280" width="200" height="60" class="box" />
+  <text x="400" y="1305" class="text-title">simpanNilaiTKJI()</text>
+  <text x="400" y="1325" class="text-sub">Kalkulasi Norma sesuai Gender</text>
+  <path d="M 400 1340 V 1380" class="line" />
+
+  <rect x="300" y="1380" width="200" height="60" class="box" />
+  <text x="400" y="1405" class="text-title">Modal Penilaian Selesai</text>
+  <text x="400" y="1425" class="text-sub">Tampilkan Total Skor &amp; Predikat</text>
+  <path d="M 400 1440 V 1480 H 150 V 660 H 1200" class="line-dash" />
+
+  <path d="M 720 880 H 800 V 930" class="line" />
+  <text x="730" y="870" class="label">Riwayat &amp; Evaluasi</text>
+
+  <rect x="700" y="930" width="200" height="60" class="box" />
+  <text x="800" y="955" class="text-title">page-riwayat-asesmen</text>
+  <text x="800" y="975" class="text-sub">Tabel Riwayat Pribadi Siswa</text>
+  <path d="M 800 990 V 1030" class="line" />
+
+  <polygon points="800,1030 900,1080 800,1130 700,1080" class="decision" />
+  <text x="800" y="1085" class="text-title">Klik Rincian?</text>
+
+  <path d="M 800 1130 V 1180" class="line" />
+  <rect x="700" y="1180" width="200" height="60" class="box" />
+  <text x="800" y="1205" class="text-title">page-rincian-evaluasi</text>
+  <text x="800" y="1225" class="text-sub">Rapor Bintang &amp; Feedback Unit</text>
+  <path d="M 800 1240 V 1280 H 900 V 660 H 1200" class="line-dash" />
+
+  <path d="M 1420 780 H 2300 V 830" class="line" />
+  <text x="1900" y="770" class="label">Mode: GURU</text>
+
+  <polygon points="2300,830 2420,880 2300,930 2180,880" class="decision" />
+  <text x="2300" y="885" class="text-title">Pilih Menu Guru?</text>
+
+  <path d="M 2300 930 V 980" class="line" />
+  <rect x="2200" y="980" width="200" height="60" class="box" />
+  <text x="2300" y="1005" class="text-title">page-manajemen-asesmen</text>
+  <text x="2300" y="1025" class="text-sub">Tabel List Sesi Ujian</text>
+  <path d="M 2300 1040 V 1080" class="line" />
+
+  <polygon points="2300,1080 2420,1130 2300,1180 2180,1130" class="decision" />
+  <text x="2300" y="1135" class="text-title">Aksi Manajemen?</text>
+
+  <path d="M 2180 1130 H 2100 V 1180" class="line" />
+  <text x="2110" y="1120" class="label">Buat Baru</text>
+
+  <rect x="2000" y="1180" width="200" height="60" class="box" />
+  <text x="2100" y="1205" class="text-title">modalBuatAsesmen</text>
+  <text x="2100" y="1225" class="text-sub">Input Judul, Jenis, Token</text>
+  <path d="M 2100 1240 V 1280" class="line" />
+
+  <rect x="2000" y="1280" width="200" height="60" class="box" />
+  <text x="2100" y="1305" class="text-title">simpanAsesmenBaru()</text>
+  <text x="2100" y="1325" class="text-sub">Simpan ke dataAssesment</text>
+  <path d="M 2100 1340 V 1370 H 1950 V 1010 H 2200" class="line" /> <path d="M 2420 1130 H 2500 V 1180" class="line" />
+  <text x="2430" y="1120" class="label">Rincian Sesi</text>
+
+  <rect x="2400" y="1180" width="200" height="60" class="box" />
+  <text x="2500" y="1205" class="text-title">page-rincian-asesmen-guru</text>
+  <text x="2500" y="1225" class="text-sub">Tabel Hasil Penilaian Siswa</text>
+  <path d="M 2500 1240 V 1280" class="line" />
+
+  <rect x="2400" y="1280" width="200" height="60" class="box" />
+  <text x="2500" y="1305" class="text-title">Aksi Dalam Rincian</text>
+  <text x="2500" y="1320" class="text-sub">- toggleStatusAsesmen()</text>
+  <text x="2500" y="1335" class="text-sub">- exportToExcel()</text>
+
+  <path d="M 1300 830 V 880" class="line" />
+  <text x="1310" y="855" class="label">Menu Umum (Siswa &amp; Guru)</text>
+
+  <polygon points="1300,880 1420,930 1300,980 1180,930" class="decision" />
+  <text x="1300" y="935" class="text-title">Pilih Menu?</text>
+
+  <path d="M 1180 930 H 1100 V 980" class="line" />
+  <rect x="1000" y="980" width="200" height="60" class="box" />
+  <text x="1100" y="1005" class="text-title">page-capaian-pembelajaran</text>
+  <text x="1100" y="1025" class="text-sub">Tujuan &amp; ATP PJOK</text>
+  <path d="M 1100 1040 V 1070 H 1050 V 660 H 1200" class="line-dash" /> 
+
+  <path d="M 1420 930 H 1500 V 980" class="line" />
+  <rect x="1400" y="980" width="200" height="60" class="box" />
+  <text x="1500" y="1005" class="text-title">page-materi</text>
+  <text x="1500" y="1025" class="text-sub">List 3 Kategori Materi</text>
+  <path d="M 1500 1040 V 1080" class="line" />
+
+  <polygon points="1500,1080 1620,1130 1500,1180 1380,1130" class="decision" />
+  <text x="1500" y="1135" class="text-title">Pilih Kategori?</text>
+
+  <path d="M 1380 1130 H 1250 V 1180" class="line" />
+  <rect x="1150" y="1180" width="200" height="60" class="box" />
+  <text x="1250" y="1205" class="text-title">page-pengertian-kebugaran</text>
+  <text x="1250" y="1225" class="text-sub">Teks Statis Pengertian</text>
+  <path d="M 1250 1240 V 1270 H 1180 V 660 H 1200" class="line-dash" /> 
+
+  <path d="M 1500 1180 V 1230" class="line" />
+  <rect x="1400" y="1230" width="200" height="60" class="box" />
+  <text x="1500" y="1255" class="text-title">page-komponen-kebugaran</text>
+  <text x="1500" y="1275" class="text-sub">Menu 4 Komponen</text>
+  <path d="M 1500 1290 V 1330" class="line" />
+
+  <polygon points="1500,1330 1600,1380 1500,1430 1400,1380" class="decision" />
+  <text x="1500" y="1385" class="text-title">Pilih Komponen?</text>
+
+  <path d="M 1500 1430 V 1760" class="line-no-arrow" />
+  
+  <path d="M 1500 1460 H 1450" class="line" />
+  <rect x="1250" y="1430" width="200" height="60" class="box" />
+  <text x="1350" y="1465" class="text-title">page-komponen-kekuatan</text>
+
+  <path d="M 1500 1560 H 1450" class="line" />
+  <rect x="1250" y="1530" width="200" height="60" class="box" />
+  <text x="1350" y="1565" class="text-title">page-komponen-daya-tahan</text>
+
+  <path d="M 1500 1660 H 1450" class="line" />
+  <rect x="1250" y="1630" width="200" height="60" class="box" />
+  <text x="1350" y="1665" class="text-title">page-komponen-daya-ledak</text>
+
+  <path d="M 1500 1760 H 1450" class="line" />
+  <rect x="1250" y="1730" width="200" height="60" class="box" />
+  <text x="1350" y="1765" class="text-title">page-komponen-kecepatan</text>
+
+  <path d="M 1620 1130 H 1800 V 1180" class="line" />
+  <rect x="1700" y="1180" width="200" height="60" class="box" />
+  <text x="1800" y="1205" class="text-title">page-tutorial-latihan</text>
+  <text x="1800" y="1225" class="text-sub">List Menu Tutorial Interaktif</text>
+  <path d="M 1800 1240 V 1280" class="line" />
+
+  <polygon points="1800,1280 1900,1330 1800,1380 1700,1330" class="decision" />
+  <text x="1800" y="1335" class="text-title">Pilih Item Latihan?</text>
+
+  <path d="M 1800 1380 V 1430" class="line" />
+  <rect x="1700" y="1430" width="200" height="60" class="box" />
+  <text x="1800" y="1455" class="text-title">page-tutorial-detail</text>
+  <text x="1800" y="1475" class="text-sub">Accordion Level &amp; Player Video</text>
+  <path d="M 1800 1490 V 1520 H 1950 V 660 H 1400" class="line-dash" />
+
+  <path d="M 1180 390 H 100 V 1900 H 1400" class="line-no-arrow" />
+  <text x="600" y="380" class="label">Keluar / Tutup Browser</text>
+
+  <path d="M 1400 1900 V 1920" class="line" />
+
+  <ellipse cx="1400" cy="1955" rx="100" ry="35" class="box-start-end" />
+  <text x="1400" y="1960" class="text-title">Selesai</text>
+
+</svg>
