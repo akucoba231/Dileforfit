@@ -1831,8 +1831,14 @@ input:checked + .slider:before { transform: translateX(24px); }
                 </div>
             `
             : `
-                <div class="tutorial-video">
+                <!--<div class="tutorial-video">
                     <div class="tutorial-video-empty">Video belum tersedia</div>
+                </div>-->
+                <div class="tutorial-video">
+                    <video controls>
+                        <source src="video/maaf.mp4" type="video/mp4">
+                        Browser Anda tidak mendukung pemutar video.
+                    </video>
                 </div>
             `;
 
