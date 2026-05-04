@@ -712,6 +712,113 @@ input:checked + .slider:before { transform: translateX(24px); }
 
     <div id="app-container">
 
+        <!-- MODAL ABSENSI SISWA -->
+        <div id="modalAbsensiSiswa" class="modal-overlay">
+            <div class="modal-content" style="border-color: #29B6F6;">
+                <h3 style="color:#0288D1; font-weight:900; margin-bottom: 5px;">Presensi Kehadiran</h3>
+                <p style="font-weight:700; color:#757575; font-size: 13px; margin-top: 0; margin-bottom: 20px;">Silakan isi daftar hadir sebelum mulai belajar.</p>
+
+                <div class="content-box form-register" style="box-shadow:none; padding:15px; margin-bottom:20px; text-align: left;">
+                    <label class="form-label">Token Absen (Dari Guru)</label>
+                    <input type="text" id="inputTokenAbsenSiswa" placeholder="Masukkan token..." style="text-transform: uppercase;">
+                    
+                    <label class="form-label" style="margin-top: 10px;">Status Kehadiran</label>
+                    <select id="inputStatusAbsenSiswa" onchange="cekStatusAbsen()">
+                        <option value="Hadir">Hadir</option>
+                        <option value="Sakit">Sakit</option>
+                        <option value="Izin">Izin</option>
+                    </select>
+
+                    <div id="boxKeteranganAbsen" style="display: none; margin-top: 10px;">
+                        <label class="form-label">Keterangan Tambahan</label>
+                        <input type="text" id="inputKeteranganAbsenSiswa" placeholder="Alasan sakit/izin...">
+                    </div>
+                </div>
+
+                <button onclick="simpanAbsensiSiswa()" style="margin-bottom: 10px; width: 100%;">Kirim Absen ✔</button>
+                <p class="kembali" style="margin-top: 5px; color:#9E9E9E;" onclick="closeModal('modalAbsensiSiswa')">Lewati (Hanya Belajar)</p>
+            </div>
+        </div>
+
+        <!-- MODAL BUAT ABSENSI GURU -->
+        <div id="modalBuatAbsensiGuru" class="modal-overlay">
+            <div class="modal-content" style="border-color: #4CAF50;">
+                <h3 style="color:#2E7D32; font-weight:900;">Buat Sesi Absen</h3>
+                <div class="content-box form-register form-guru-reg" style="box-shadow:none; padding:15px; margin-bottom:20px; text-align: left;">
+                    <label class="form-label">Token Absensi Hari Ini</label>
+                    <input type="text" id="inputGenerateTokenAbsen" placeholder="Contoh: SENIN01" style="text-transform: uppercase;">
+                </div>
+                <button onclick="simpanSesiAbsensiBaru()" style="margin-bottom: 10px; background: linear-gradient(180deg, #81C784, #4CAF50); border-color:#E8F5E9; box-shadow: 0 5px 0 #388E3C;">Buat Token ✔</button>
+                <p class="kembali" style="margin-top: 5px; color:#9E9E9E;" onclick="closeModal('modalBuatAbsensiGuru')">Batal</p>
+            </div>
+        </div>
+
+        <!-- HALAMAN MANAJEMEN ABSENSI (GURU) -->
+        <div id="page-manajemen-absensi" class="page" data-title="📋 Manajemen Absensi" data-parent="page-dashboard" style="text-align: left;">
+            <div class="top-bar">
+                <button class="btn-back-ios" onclick="nav('page-dashboard')">
+                    <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg> Kembali
+                </button>
+            </div>
+            <div class="breadcrumb-container"></div>
+            
+            <p style="font-weight: 700; font-size: 13px; color: #757575; margin-bottom: 15px;">Kelola token kehadiran harian siswa.</p>
+            <button class="btn-success" onclick="document.getElementById('modalBuatAbsensiGuru').style.display='flex'; document.getElementById('inputGenerateTokenAbsen').value='';" style="margin-bottom: 20px; font-size: 16px;">+ Buat Token Absen</button>
+            
+            <div class="content-box" style="padding: 15px 10px; overflow-x: auto; background: #FFFFFF; border-color: #C8E6C9;">
+                <table id="tabelManajemenAbsensi" class="display nowrap" style="width:100%; text-align: left;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">No</th>
+                            <th>Tanggal</th>
+                            <th>Token</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Opsi</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- HALAMAN RINCIAN ABSENSI (GURU) -->
+        <div id="page-rincian-absensi" class="page" data-title="Rincian Absensi" data-parent="page-manajemen-absensi" style="text-align: left;">
+            <div class="top-bar">
+                <button class="btn-back-ios" onclick="nav('page-manajemen-absensi')">
+                    <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg> Kembali
+                </button>
+            </div>
+            <div class="breadcrumb-container"></div>
+            
+            <div class="content-box" style="border-color: #A5D6A7; background: #E8F5E9; text-align: center;">
+                <h2 style="margin: 0 0 10px 0; color: #1B5E20; font-weight: 900;">Data Kehadiran</h2>
+                <p style="margin: 5px 0; font-weight: 900; color: #E65100; font-size: 18px; letter-spacing: 2px;">Token: <span id="rinAbsenToken"></span></p>
+                <p style="margin: 5px 0; font-weight: 700; color: #4A4A4A; font-size: 13px;" id="rinAbsenTanggal"></p>
+                
+                <div style="margin-top: 15px; display: inline-flex; align-items: center; background: white; padding: 10px 20px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <label class="switch">
+                        <input type="checkbox" id="rinAbsenToggle" onchange="toggleStatusAbsensi()">
+                        <span class="slider"></span>
+                    </label>
+                    <span id="rinAbsenStatusLabel" class="status-label">aktif</span>
+                </div>
+            </div>
+
+            <div class="content-box" style="border-color: #81C784; padding: 15px 10px; overflow-x: auto;">
+                <table id="tabelRincianAbsensiSiswa" class="display nowrap" style="width:100%; text-align: left;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">No</th>
+                            <th>Nama Siswa</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
         <div id="globalModal" class="modal-overlay">
             <div class="modal-content">
                 <h3 id="modalTitle" style="color:#0288D1; font-weight:900;" class="dynamic-text">Pesan</h3>
@@ -973,6 +1080,7 @@ input:checked + .slider:before { transform: translateX(24px); }
                             <th style="text-align: center;">Total Skor</th>
                             <th>Rincian Unit (1-5)</th>
                             <th>Keterangan</th>
+                            <th>Umpan Balik</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -1566,6 +1674,9 @@ input:checked + .slider:before { transform: translateX(24px); }
     let dbGuru = JSON.parse(localStorage.getItem('dileforfit_guru')) || [];
     let dataAssesment = JSON.parse(localStorage.getItem('dileforfit_data_assesment')) || []; 
     let dataPenilaian = JSON.parse(localStorage.getItem('dileforfit_data_penilaian')) || []; 
+    // tambahan untuk absensi
+    let kodeAbsensi = JSON.parse(localStorage.getItem('dileforfit_kode_absensi')) || [];
+    let dataAbsensi = JSON.parse(localStorage.getItem('dileforfit_data_absensi')) || [];
 
     let currentRoleLogin = 'siswa'; 
     let loggedInUser = null; 
@@ -1658,6 +1769,7 @@ input:checked + .slider:before { transform: translateX(24px); }
         if(targetId === 'page-manajemen-asesmen') renderTabelAsesmen();
         if(targetId === 'page-tutorial-latihan') renderTutorialMenu();
         if(targetId === 'page-tutorial-detail') renderTutorialDetail();
+        if(targetId === 'page-manajemen-absensi') renderTabelAbsensi(); // <-- TAMBAHAN absensi
 
         renderBreadcrumb(targetId);
     }
@@ -1714,6 +1826,16 @@ input:checked + .slider:before { transform: translateX(24px); }
                 loggedInUser = found; 
                 appContainer.classList.remove('theme-guru'); 
                 nav('page-dashboard'); 
+
+                // MUNCULKAN MODAL ABSENSI SAAT SISWA BARU LOGIN
+                document.getElementById('inputTokenAbsenSiswa').value = '';
+                document.getElementById('inputStatusAbsenSiswa').value = 'Hadir';
+                document.getElementById('inputKeteranganAbsenSiswa').value = '';
+                document.getElementById('boxKeteranganAbsen').style.display = 'none';
+                document.getElementById('modalAbsensiSiswa').style.display = 'flex';
+
+            
+
             } else { 
                 showModal("Gagal Masuk", "Username atau Password Siswa salah."); 
             }
@@ -1723,6 +1845,7 @@ input:checked + .slider:before { transform: translateX(24px); }
                 loggedInUser = found; 
                 appContainer.classList.add('theme-guru'); 
                 nav('page-dashboard'); 
+                showModal('Selamat Datang','Masuk ke "Manajemen Absensi" untuk membuat token absensi pembelajaran');
             } else { 
                 showModal("Gagal Masuk", "Username atau Password Guru salah."); 
             }
@@ -1959,6 +2082,11 @@ input:checked + .slider:before { transform: translateX(24px); }
             </div>
             ${btnCapaian} 
             ${btnMateri}
+            <!-- TAMBAHKAN TOMBOL INI -->
+            <div class="card-materi card-asesmen" onclick="nav('page-manajemen-absensi')">
+                <div class="icon-box">📋</div>
+                <div class="text-box">Manajemen Absensi</div>
+            </div>
             <div class="card-materi card-asesmen" onclick="nav('page-manajemen-asesmen')">
                 <div class="icon-box">⚙️</div>
                 <div class="text-box">Manajemen Asesmen</div>
@@ -2162,17 +2290,73 @@ input:checked + .slider:before { transform: translateX(24px); }
         const tbody = document.querySelector('#tabelHasilSiswa tbody'); 
         tbody.innerHTML = '';
 
+        // dataPenilaian.filter(p => p.id_assesment === id_assesment).forEach((nilai, index) => {
+        //     const dataSiswa = dbSiswa.find(s => s.id_siswa === nilai.id_siswa);
+        //     const namaLengkap = dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal";
+
+        //     let rincianHTML = `<div style="display:flex; flex-direction:column; justify-content:baseline; align-items:flex-start; flex-wrap:wrap; font-size:12px; color:#4A4A4A;">`;
+        //     if (nilai.hasil_penilaian) { 
+        //         for (const key in nilai.hasil_penilaian) { 
+        //             rincianHTML += `<span><strong>${aliasUnitTes[key] || key}:</strong> ${nilai.hasil_penilaian[key]}</span>`; 
+        //         } 
+        //     } 
+        //     rincianHTML += `</div>`;
+
+        //     let warnaKlasifikasi = "#424242";
+        //     if (nilai.keterangan.includes("Sangat")) warnaKlasifikasi = "#4CAF50"; 
+        //     else if (nilai.keterangan === "Baik") warnaKlasifikasi = "#29B6F6"; 
+        //     else if (nilai.keterangan.includes("Cukup") || nilai.keterangan.includes("Sedang")) warnaKlasifikasi = "#FF9800"; 
+        //     else if (nilai.keterangan === "Kurang") warnaKlasifikasi = "#E53935";
+
+        //     tbody.innerHTML += `
+        //     <tr>
+        //         <td style="text-align: center; font-weight: bold;">${index + 1}</td>
+        //         <td style="font-weight: 800; color: #1B5E20;">${namaLengkap}</td>
+        //         <td style="text-align: center; font-weight: 900; color: #E65100; font-size: 16px;">${nilai.total_nilai}</td>
+        //         <td>${rincianHTML}</td>
+        //         <td><span style="color: ${warnaKlasifikasi}; font-weight: 900;">${nilai.keterangan}</span></td>
+        //     </tr>
+        //     `;
+        // });
+
         dataPenilaian.filter(p => p.id_assesment === id_assesment).forEach((nilai, index) => {
             const dataSiswa = dbSiswa.find(s => s.id_siswa === nilai.id_siswa);
             const namaLengkap = dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal";
 
             let rincianHTML = `<div style="display:flex; flex-direction:column; justify-content:baseline; align-items:flex-start; flex-wrap:wrap; font-size:12px; color:#4A4A4A;">`;
+            
+            // --- LOGIKA MENCARI NILAI TERENDAH UNTUK UMPAN BALIK ---
+            let minScore = 6; 
+            let lowestUnits = [];
+
             if (nilai.hasil_penilaian) { 
                 for (const key in nilai.hasil_penilaian) { 
                     rincianHTML += `<span><strong>${aliasUnitTes[key] || key}:</strong> ${nilai.hasil_penilaian[key]}</span>`; 
+                    
+                    // Mencari nilai yang paling kecil
+                    if(nilai.hasil_penilaian[key] < minScore) { 
+                        minScore = nilai.hasil_penilaian[key]; 
+                        lowestUnits = [key]; 
+                    } else if (nilai.hasil_penilaian[key] === minScore) { 
+                        lowestUnits.push(key); 
+                    }
                 } 
             } 
             rincianHTML += `</div>`;
+
+            // --- GENERATE TEKS UMPAN BALIK ---
+            let umpanBalikTeks = "-";
+            if (nilai.status_pengerjaan === 'Draft') {
+                umpanBalikTeks = `<span style="color:#9E9E9E; font-style:italic;">Masih dalam proses (Draft)</span>`;
+            } else if (lowestUnits.length > 0) {
+                if (minScore === 5) {
+                    umpanBalikTeks = "Sangat baik di semua komponen!"; // Jika skornya 5 semua
+                } else {
+                    // Pakai & agar lebih ringkas di tabel
+                    const teksTerendah = lowestUnits.map(k => aliasUnitTes[k]).join(" & "); 
+                    umpanBalikTeks = `Fokus tingkatkan: ${teksTerendah}`;
+                }
+            }
 
             let warnaKlasifikasi = "#424242";
             if (nilai.keterangan.includes("Sangat")) warnaKlasifikasi = "#4CAF50"; 
@@ -2187,6 +2371,7 @@ input:checked + .slider:before { transform: translateX(24px); }
                 <td style="text-align: center; font-weight: 900; color: #E65100; font-size: 16px;">${nilai.total_nilai}</td>
                 <td>${rincianHTML}</td>
                 <td><span style="color: ${warnaKlasifikasi}; font-weight: 900;">${nilai.keterangan}</span></td>
+                <td style="font-size: 13px; color: #4A4A4A; max-width: 250px; white-space: normal;">${umpanBalikTeks}</td>
             </tr>
             `;
         });
@@ -2219,6 +2404,43 @@ input:checked + .slider:before { transform: translateX(24px); }
         }
     }
 
+    // function exportToExcel() {
+    //     if (!globalAsesmenIdAktif) return;
+
+    //     const asesmen = dataAssesment.find(a => a.id_assesment === globalAsesmenIdAktif);
+    //     const daftarNilaiSiswa = dataPenilaian.filter(p => p.id_assesment === globalAsesmenIdAktif);
+
+    //     if (daftarNilaiSiswa.length === 0) {
+    //         return showModal("Perhatian", "Belum ada data siswa untuk diekspor.");
+    //     }
+
+    //     const dataExcel = [];
+    //     daftarNilaiSiswa.forEach((nilai, index) => {
+    //         const dataSiswa = dbSiswa.find(s => s.id_siswa === nilai.id_siswa);
+    //         let rowData = { 
+    //             "No": index + 1, 
+    //             "Nama Siswa": dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal", 
+    //             "Total Skor": nilai.total_nilai 
+    //         };
+
+    //         if (nilai.hasil_penilaian) { 
+    //             for (const key in nilai.hasil_penilaian) { 
+    //                 rowData[aliasUnitTes[key] || key] = nilai.hasil_penilaian[key]; 
+    //             } 
+    //         }
+    //         rowData["Klasifikasi / Keterangan"] = nilai.keterangan; 
+    //         rowData["Tanggal Mengerjakan"] = nilai.tanggal_penilaian;
+
+    //         dataExcel.push(rowData);
+    //     });
+
+    //     const ws = XLSX.utils.json_to_sheet(dataExcel); 
+    //     const wb = XLSX.utils.book_new(); 
+    //     XLSX.utils.book_append_sheet(wb, ws, "Hasil Ujian");
+
+    //     XLSX.writeFile(wb, `Hasil_${asesmen.judul_assesment.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${asesmen.token_assesment}.xlsx`);
+    // }
+
     function exportToExcel() {
         if (!globalAsesmenIdAktif) return;
 
@@ -2238,12 +2460,37 @@ input:checked + .slider:before { transform: translateX(24px); }
                 "Total Skor": nilai.total_nilai 
             };
 
+            let minScore = 6; 
+            let lowestUnits = [];
+
             if (nilai.hasil_penilaian) { 
                 for (const key in nilai.hasil_penilaian) { 
                     rowData[aliasUnitTes[key] || key] = nilai.hasil_penilaian[key]; 
+                    
+                    if(nilai.hasil_penilaian[key] < minScore) { 
+                        minScore = nilai.hasil_penilaian[key]; 
+                        lowestUnits = [key]; 
+                    } else if (nilai.hasil_penilaian[key] === minScore) { 
+                        lowestUnits.push(key); 
+                    }
                 } 
             }
+
+            // Generate Umpan Balik untuk Excel
+            let umpanBalikExcel = "-";
+            if (nilai.status_pengerjaan === 'Draft') {
+                umpanBalikExcel = "Masih dalam proses (Draft)";
+            } else if (lowestUnits.length > 0) {
+                if (minScore === 5) {
+                    umpanBalikExcel = "Sangat baik di semua komponen!";
+                } else {
+                    const teksTerendah = lowestUnits.map(k => aliasUnitTes[k]).join(" dan ");
+                    umpanBalikExcel = `Fokus tingkatkan: ${teksTerendah}`;
+                }
+            }
+
             rowData["Klasifikasi / Keterangan"] = nilai.keterangan; 
+            rowData["Umpan Balik"] = umpanBalikExcel; // Kolom baru di Excel
             rowData["Tanggal Mengerjakan"] = nilai.tanggal_penilaian;
 
             dataExcel.push(rowData);
@@ -2819,6 +3066,196 @@ input:checked + .slider:before { transform: translateX(24px); }
         bottomNav.style.display = 'none';
     }
 }
+
+// ==========================================
+// FITUR ABSENSI
+// ==========================================
+let globalAbsenIdAktif = null;
+
+// Mengatur format tanggal seragam (dd/mm/yyyy)
+function getFormattedDate() {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const yyyy = today.getFullYear();
+    return dd + '/' + mm + '/' + yyyy;
+}
+
+// 1. SISWA: Ubah tampilan form keterangan absen
+function cekStatusAbsen() {
+    const status = document.getElementById('inputStatusAbsenSiswa').value;
+    if (status === 'Sakit' || status === 'Izin') {
+        document.getElementById('boxKeteranganAbsen').style.display = 'block';
+    } else {
+        document.getElementById('boxKeteranganAbsen').style.display = 'none';
+    }
+}
+
+// 2. SISWA: Menyimpan data absen
+function simpanAbsensiSiswa() {
+    const token = document.getElementById('inputTokenAbsenSiswa').value.toUpperCase().trim();
+    const status = document.getElementById('inputStatusAbsenSiswa').value;
+    const keterangan = document.getElementById('inputKeteranganAbsenSiswa').value.trim();
+
+    if (!token) return showModal("Perhatian", "Silakan masukkan Token Absen dari Guru.");
+
+    // Cari master absen yang masih aktif
+    const sesiAbsen = kodeAbsensi.find(a => a.token_absen === token && a.status === 'aktif');
+    
+    if (!sesiAbsen) {
+        return showModal("Gagal Absen", "Token absensi tidak valid atau sesi telah ditutup oleh Guru.");
+    }
+
+    // Cek apakah siswa sudah absen pakai token ini
+    const cekSudahAbsen = dataAbsensi.find(d => d.token_absen === token && d.id_siswa === loggedInUser.id_siswa);
+    if (cekSudahAbsen) {
+        closeModal('modalAbsensiSiswa');
+        return showModal("Informasi", "Anda sudah mengisi daftar hadir untuk sesi token ini.");
+    }
+
+    // Push data
+    dataAbsensi.push({
+        id_absen: "REC" + Date.now(),
+        id_siswa: loggedInUser.id_siswa,
+        token_absen: token,
+        status: status,
+        keterangan: (status === 'Hadir' || status === 'Alfa') ? "-" : keterangan,
+        tanggal_absen: getFormattedDate()
+    });
+
+    localStorage.setItem('dileforfit_data_absensi', JSON.stringify(dataAbsensi));
+    closeModal('modalAbsensiSiswa');
+    showModal("Berhasil", "Kehadiran Anda berhasil dicatat!");
+}
+
+// 3. GURU: Buat Sesi Absen Baru
+function simpanSesiAbsensiBaru() {
+    const tokenBaru = document.getElementById('inputGenerateTokenAbsen').value.toUpperCase().trim();
+    if (!tokenBaru) return showModal("Perhatian", "Harap isi Token Absensi.");
+
+    // Cek duplikasi token aktif
+    if (kodeAbsensi.find(a => a.token_absen === tokenBaru && a.status === 'aktif')) {
+        return showModal("Perhatian", "Token ini sedang aktif. Gunakan token lain.");
+    }
+
+    kodeAbsensi.push({
+        id_kode_absen: "ABS" + Date.now(),
+        id_guru: loggedInUser.id_guru,
+        token_absen: tokenBaru,
+        tanggal_absen: getFormattedDate(),
+        status: "aktif"
+    });
+
+    localStorage.setItem('dileforfit_kode_absensi', JSON.stringify(kodeAbsensi));
+    closeModal('modalBuatAbsensiGuru');
+    renderTabelAbsensi(); // Reload tabel jika posisi sedang di halaman manajemen
+    showModal("Sukses", `Sesi Absen berhasil dibuat!\n\nToken: ${tokenBaru}`);
+}
+
+// 4. GURU: Render Tabel Manajemen Absensi
+function renderTabelAbsensi() {
+    if ($.fn.DataTable.isDataTable('#tabelManajemenAbsensi')) { 
+        $('#tabelManajemenAbsensi').DataTable().destroy(); 
+    }
+    const tbody = document.querySelector('#tabelManajemenAbsensi tbody'); 
+    tbody.innerHTML = '';
+
+    kodeAbsensi.filter(a => a.id_guru === loggedInUser.id_guru).forEach((a, index) => {
+        const badgeColor = a.status === 'aktif' ? '#4CAF50' : '#E53935';
+        tbody.innerHTML += `
+        <tr>
+            <td style="text-align: center; font-weight: bold;">${index + 1}</td>
+            <td>${a.tanggal_absen}</td>
+            <td style="font-weight: 900; color: #4A4A4A; font-size: 15px;">${a.token_absen}</td>
+            <td><span style="background-color: ${badgeColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: lowercase;">${a.status}</span></td>
+            <td style="text-align: center;">
+                <button class="btn-info" onclick="bukaRincianAbsensi('${a.id_kode_absen}')">Lihat Data</button>
+            </td>
+        </tr>
+        `;
+    });
+
+    $('#tabelManajemenAbsensi').DataTable({ 
+        "pageLength": 5, "lengthChange": false, "scrollX": true, 
+        "language": { "search": "Cari:", "info": "Hal _PAGE_ dari _PAGES_", "infoEmpty": "Kosong", "zeroRecords": "Tidak ditemukan", "paginate": { "next": "▶", "previous": "◀" } } 
+    });
+}
+
+// 5. GURU: Buka Rincian & Tabel Siswa
+function bukaRincianAbsensi(id_kode_absen) {
+    const absen = kodeAbsensi.find(a => a.id_kode_absen === id_kode_absen);
+    if (!absen) return;
+
+    globalAbsenIdAktif = id_kode_absen;
+    document.getElementById('rinAbsenToken').innerText = absen.token_absen; 
+    document.getElementById('rinAbsenTanggal').innerText = absen.tanggal_absen;
+
+    const toggle = document.getElementById('rinAbsenToggle'); 
+    const lblStatus = document.getElementById('rinAbsenStatusLabel');
+
+    if(absen.status === 'aktif') { 
+        toggle.checked = true; lblStatus.innerText = "aktif"; lblStatus.className = "status-label status-aktif"; 
+    } else { 
+        toggle.checked = false; lblStatus.innerText = "tidak aktif"; lblStatus.className = "status-label status-tidak-aktif"; 
+    }
+
+    if ($.fn.DataTable.isDataTable('#tabelRincianAbsensiSiswa')) { 
+        $('#tabelRincianAbsensiSiswa').DataTable().destroy(); 
+    }
+    const tbody = document.querySelector('#tabelRincianAbsensiSiswa tbody'); 
+    tbody.innerHTML = '';
+
+    const listAbsenSiswa = dataAbsensi.filter(d => d.token_absen === absen.token_absen);
+    listAbsenSiswa.forEach((rec, index) => {
+        const dataSiswa = dbSiswa.find(s => s.id_siswa === rec.id_siswa);
+        const namaLengkap = dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal";
+        
+        let warnaStatus = "#424242";
+        if(rec.status === 'Hadir') warnaStatus = "#4CAF50";
+        else if(rec.status === 'Sakit') warnaStatus = "#FF9800";
+        else if(rec.status === 'Izin') warnaStatus = "#29B6F6";
+        else if(rec.status === 'Alfa') warnaStatus = "#E53935";
+
+        tbody.innerHTML += `
+        <tr>
+            <td style="text-align: center; font-weight: bold;">${index + 1}</td>
+            <td style="font-weight: 800; color: #1B5E20;">${namaLengkap}</td>
+            <td><span style="color: ${warnaStatus}; font-weight: 900;">${rec.status}</span></td>
+            <td>${rec.keterangan || '-'}</td>
+        </tr>
+        `;
+    });
+
+    $('#tabelRincianAbsensiSiswa').DataTable({ 
+        "pageLength": 5, "lengthChange": false, "scrollX": true, 
+        "language": { "search": "Cari:", "info": "Hal _PAGE_ dari _PAGES_", "infoEmpty": "Kosong", "zeroRecords": "Belum ada siswa absen", "paginate": { "next": "▶", "previous": "◀" } } 
+    });
+
+    nav('page-rincian-absensi');
+}
+
+// 6. GURU: Toggle Status Absen Aktif/Tidak Aktif
+function toggleStatusAbsensi() {
+    if (!globalAbsenIdAktif) return;
+
+    const isChecked = document.getElementById('rinAbsenToggle').checked;
+    const newStatus = isChecked ? "aktif" : "tidak aktif";
+
+    document.getElementById('rinAbsenStatusLabel').innerText = newStatus; 
+    document.getElementById('rinAbsenStatusLabel').className = isChecked ? "status-label status-aktif" : "status-label status-tidak-aktif";
+
+    const index = kodeAbsensi.findIndex(a => a.id_kode_absen === globalAbsenIdAktif);
+    if (index !== -1) { 
+        kodeAbsensi[index].status = newStatus; 
+        localStorage.setItem('dileforfit_kode_absensi', JSON.stringify(kodeAbsensi)); 
+        
+        // Render ulang tabel utama di background supaya sinkron
+        const tabelContainer = document.querySelector('#tabelManajemenAbsensi tbody');
+        if(tabelContainer) renderTabelAbsensi();
+    }
+}
+
+// ==========================================
 </script>
 </body>
 </html>
