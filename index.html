@@ -28,7 +28,7 @@ body {
     #app-container { min-height: 850px; border-radius: 40px; border: 10px solid #1A237E; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin: 20px 0;} 
 }
 
-.page { display: none; padding: 25px 20px; text-align: center; height: 100%; box-sizing: border-box; margin-bottom: 10px; max-height:100vh; overflow-y: scroll;}
+.page { display: none; padding: 25px 20px; text-align: center; height: 100%; box-sizing: border-box; margin-bottom: 15px; max-height:100vh; overflow-y: scroll;}
 .page.active { display: block; animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -683,7 +683,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 /* ========================================= */
 /* --- NAVIGASI BAWAH (KEMBALI + SELANJUTNYA) --- */
 /* ========================================= */
-.bottom-nav {
+.bottom-nav, .bottom-nav-new {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -697,10 +697,19 @@ input:checked + .slider:before { transform: translateX(24px); }
     transform: translateY(100%);
 }
 
-.bottom-nav button {
+.bottom-nav button, .bottom-nav-new button {
     width: 48%;
     max-width: 180px;
 }
+
+.bottom-nav-new {
+	position: relative;
+	transform: translateY(0);
+	justify-content: flex-start;
+	align-items: center;
+	padding: 0;
+}
+
 
 /* Khusus guru: sembunyikan seluruh nav bawah */
 /*.theme-guru .bottom-nav {
@@ -1254,7 +1263,7 @@ input:checked + .slider:before { transform: translateX(24px); }
     <button onclick="simpanNilaiTKJI('Selesai')" class="btn-success">Kirim Final ✔</button>
 </div>
         <div style="height: 40px;"></div>
-		     <div class="bottom-nav" style="display:flex;">
+		     <div class="bottom-nav-new" style="display:flex;">
     <button class="btn-warning" onclick="return confirm('apakah kamu yakin untuk kembali?') ? nav('page-input-token') : '';">Kembali</button>
     <!-- <button id="btnNext" onclick="">Selanjutnya</button> -->
 </div>
@@ -3043,8 +3052,12 @@ input:checked + .slider:before { transform: translateX(24px); }
       btnNext.textContent = "Selanjutnya";
     }
 
-    if (!page || !bottomNav || !btnBackBottom || targetId === "page-login" || targetId === "page-asesmen-fisik") return;
-
+    if (!page || !bottomNav || !btnBackBottom || targetId === "page-login" || targetId === "page-asesmen-fisik") 
+    {
+	console.log('bukan');
+        bottomNav.style.display = 'none';
+	return;
+    }
     // cek tombol kembali di atas
     const backBtnTop = page.querySelector('.btn-back-ios');
 
