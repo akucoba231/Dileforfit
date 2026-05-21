@@ -1254,6 +1254,10 @@ input:checked + .slider:before { transform: translateX(24px); }
     <button onclick="simpanNilaiTKJI('Selesai')" class="btn-success">Kirim Final ✔</button>
 </div>
         <div style="height: 40px;"></div>
+		     <div class="bottom-nav" style="display:flex;">
+    <button class="btn-warning" onclick="return confirm('apakah kamu yakin untuk kembali?') ? nav('page-input-token') : '';">Kembali</button>
+    <!-- <button id="btnNext" onclick="">Selanjutnya</button> -->
+</div>
     </div>
 
 
@@ -1673,7 +1677,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 </div>
     
 
-    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -3039,7 +3043,7 @@ input:checked + .slider:before { transform: translateX(24px); }
       btnNext.textContent = "Selanjutnya";
     }
 
-    if (!page || !bottomNav || !btnBackBottom || targetId === "page-login") return;
+    if (!page || !bottomNav || !btnBackBottom || targetId === "page-login" || targetId === "page-asesmen-fisik") return;
 
     // cek tombol kembali di atas
     const backBtnTop = page.querySelector('.btn-back-ios');
