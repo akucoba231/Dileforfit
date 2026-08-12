@@ -34,7 +34,15 @@ body {
 
 /* Typography & Header Default (Biru) */
 h1.logo-title { color: #2563EB; font-size: 34px; font-weight: 900; margin: 10px 0 25px 0; letter-spacing: 2px; text-shadow: -2px -2px 0 #FFF, 2px -2px 0 #FFF, -2px 2px 0 #FFF, 2px 2px 0 #FFF, 0px 4px 0px #1E3A8A; transition: all 0.3s;}
-.title-text { color: #1E3A8A; font-size: 20px; font-weight: 900; margin-bottom: 25px; line-height: 1.3; transition: color 0.3s;}
+.title-text, #owner { color: #1E3A8A; font-size: 20px; font-weight: 900; margin-bottom: 25px; line-height: 1.3; transition: color 0.3s;}
+#owner {
+    font-size: 16px;
+}
+#credit {
+    background: #fff;
+    padding:  2% 3%;
+    border-radius: 10px;
+}
 .badge-kategori { font-size: 13px; font-weight: 800; color: #FF9800; text-align: left; margin-bottom: 15px; background: #FFF3E0; padding: 5px 10px; border-radius: 8px; display: inline-block; border: 1px solid #FFE0B2; }
 
 /* Dashboard Banners */
@@ -885,6 +893,10 @@ input:checked + .slider:before { transform: translateX(24px); }
                <img src="assets/logo.png" alt="logo-apps" />
            </div>
            <div class="title-text">Digital Learning<br>for Physical Fitness</div>
+           <div id="credit">
+               <span>oleh :</span>
+               <span id="owner">Sigit Faturohman, S. Pd</span>
+           </div>
            <div class="spacer"></div>
            <div class="illustration-area logo-image">
             <img class="" src="assets/home.png" alt="logo-homescreen" />
@@ -1294,7 +1306,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 	<!--<button onclick="simpanNilaiTKJI()" style="margin-top: 10px;">Kirim & Simpan Nilai ✔</button>-->
 	<div style="display: flex; gap: 10px; margin-top: 10px;">
     <button onclick="simpanNilaiTKJI('Draft')" style="background: linear-gradient(180deg, #FFF59D, #FBC02D); color: #F57F17; border-color: #FFFDE7; box-shadow: 0 5px 0 #FBC02D;">Simpan Sementara 💾</button>
-    <button onclick="simpanNilaiTKJI('Selesai')" class="btn-success">Kirim Final ✔</button>
+    <button onclick="simpanNilaiTKJI('Selesai')" class="btn-success">Kirim Asesmen ✔</button>
 </div>
         <div style="height: 40px;"></div>
 		     <div class="bottom-nav-new" style="display:flex;">
@@ -1725,6 +1737,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="api.js"></script>
 <script src="dataPermainan.js"></script>
 
 <script>
@@ -1746,14 +1759,14 @@ input:checked + .slider:before { transform: translateX(24px); }
         lariJauh: "Lari Jarak Jauh" 
     };
 
-    let dbSiswa = JSON.parse(localStorage.getItem('dileforfit_siswa')) || [];
-    let dbGuru = JSON.parse(localStorage.getItem('dileforfit_guru')) || [];
-    let dataAssesment = JSON.parse(localStorage.getItem('dileforfit_data_assesment')) || []; 
-    let dataPenilaian = JSON.parse(localStorage.getItem('dileforfit_data_penilaian')) || []; 
+    let dbSiswa = [];
+    let dbGuru = [];
+    let dataAssesment = []; 
+    let dataPenilaian = []; 
     // tambahan untuk absensi
-    let kodeAbsensi = JSON.parse(localStorage.getItem('dileforfit_kode_absensi')) || [];
-    let dataAbsensi = JSON.parse(localStorage.getItem('dileforfit_data_absensi')) || [];
-    let dataLatihan = JSON.parse(localStorage.getItem('dileforfit_latihan')) || [];
+    let kodeAbsensi = [];
+    let dataAbsensi = [];
+    let dataLatihan = [];
 
     let currentRoleLogin = 'siswa'; 
     let loggedInUser = null; 
@@ -1763,19 +1776,8 @@ input:checked + .slider:before { transform: translateX(24px); }
     let dtHasilSiswaGuruInstance = null; 
     let globalAsesmenIdAktif = null; 
 
-    if(dbSiswa.length === 0) { 
-        dbSiswa.push({ 
-            id_siswa: "DUMMY1", nama_siswa: "Siswa Dummy", jenis_kelamin: "Putra", username: "siswa", 
-            password: "siswa", kelas: "XI MIPA 2", absen: "12", asal_sekolah: "SMAN 1 Cikampek" 
-        }); 
-        localStorage.setItem('dileforfit_siswa', JSON.stringify(dbSiswa)); 
-    }
-    if(dbGuru.length === 0) { 
-        dbGuru.push({ 
-            id_guru: "GURU1", nama_guru: "Guru PJOK", username: "guru", password: "guru" 
-        }); 
-        localStorage.setItem('dileforfit_guru', JSON.stringify(dbGuru)); 
-    }
+    
+    
 
 // ==========================================
 // 2. LOGIKA BREADCRUMB DINAMIS (BARU)
@@ -1899,29 +1901,34 @@ input:checked + .slider:before { transform: translateX(24px); }
         }
     }
 
-    function prosesLogin() {
+    async function prosesLogin() {
         const user = document.getElementById('loginUsername').value.trim(); 
         const pass = document.getElementById('loginPassword').value.trim(); 
         const appContainer = document.getElementById('app-container');
 
         if(!user || !pass) return showModal("Perhatian", "Silakan isi Username dan Password.");
 
+        // Simpan data login ke localStorage untuk fitur reset password (jika lupa)
+        localStorage.setItem('dileforfit_data-login', JSON.stringify({
+            role: currentRoleLogin,
+            username: user,
+            password: pass
+        }));
+
         if(currentRoleLogin === 'siswa') {
-            const found = dbSiswa.find(s => s.username === user && s.password === pass);
+            const res = await api.get('siswa', {username: user, password: pass});
+            const found = res[0];
             if(found) { 
                 loggedInUser = found; 
                 appContainer.classList.remove('theme-guru'); 
                 nav('page-dashboard'); 
-
                 bukaModalAbsen();
-
-            
-
             } else { 
                 showModal("Gagal Masuk", "Username atau Password Siswa salah."); 
             }
         } else {
-            const found = dbGuru.find(g => g.username === user && g.password === pass);
+            const res = await api.get('guru', {username: user, password: pass});
+            const found = res[0];
             if(found) { 
                 loggedInUser = found; 
                 appContainer.classList.add('theme-guru'); 
@@ -1939,6 +1946,9 @@ input:checked + .slider:before { transform: translateX(24px); }
         document.getElementById('loginPassword').value = ''; 
         document.getElementById('app-container').classList.remove('theme-guru'); 
         nav('page-login'); 
+        setTimeout(()=>{
+            document.location.reload()
+        }, 800);
     }
 
     function renderHalamanAkun() {
@@ -1986,7 +1996,7 @@ input:checked + .slider:before { transform: translateX(24px); }
         modalBody.innerHTML = modalHtml;
     }
 
-    function simpanEditProfil() {
+    async function simpanEditProfil() {
         if (!loggedInUser) return;
         const newNama = document.getElementById('editNama').value.trim();
         const newUsername = document.getElementById('editUsername').value.trim();
@@ -2016,11 +2026,7 @@ input:checked + .slider:before { transform: translateX(24px); }
             loggedInUser.jenis_kelamin = newGender;
             if (newPassword) loggedInUser.password = newPassword;
 
-            let index = dbSiswa.findIndex(s => s.id_siswa === loggedInUser.id_siswa);
-            if (index !== -1) {
-                dbSiswa[index] = loggedInUser;
-                localStorage.setItem('dileforfit_siswa', JSON.stringify(dbSiswa));
-            }
+            await api.put('siswa', 'id_siswa', loggedInUser.id_siswa, loggedInUser);
         } else {
             const newNip = document.getElementById('editNip').value.trim();
             const newSekolahGuru = document.getElementById('editSekolahGuru').value.trim();
@@ -2038,11 +2044,7 @@ input:checked + .slider:before { transform: translateX(24px); }
             loggedInUser.username = newUsername;
             if (newPassword) loggedInUser.password = newPassword;
 
-            let index = dbGuru.findIndex(g => g.id_guru === loggedInUser.id_guru);
-            if (index !== -1) {
-                dbGuru[index] = loggedInUser;
-                localStorage.setItem('dileforfit_guru', JSON.stringify(dbGuru));
-            }
+            await api.put('guru', 'id_guru', loggedInUser.id_guru, loggedInUser);
         }
 
         closeModal('modalEditProfil');
@@ -2062,7 +2064,7 @@ input:checked + .slider:before { transform: translateX(24px); }
         } 
     }
 
-    function simpanRegistrasiSiswa() { 
+    async function simpanRegistrasiSiswa() { 
         const nama = document.getElementById('regSiswaNama').value.trim();
         const sekolah = document.getElementById('regSiswaSekolah').value.trim();
         const kelas = document.getElementById('regSiswaKelas').value.trim();
@@ -2075,7 +2077,7 @@ input:checked + .slider:before { transform: translateX(24px); }
             return;
         }
 
-        dbSiswa.push({
+        await api.post('siswa', {
             id_siswa: "SISWA" + Date.now(),
             nama_siswa: nama, 
             asal_sekolah: sekolah, 
@@ -2085,12 +2087,11 @@ input:checked + .slider:before { transform: translateX(24px); }
             username: username,
             password: password
         }); 
-        localStorage.setItem('dileforfit_siswa', JSON.stringify(dbSiswa)); 
         showModal("Sukses", "Akun Siswa Berhasil Dibuat"); 
         nav('page-login'); 
     }
 
-    function simpanRegistrasiGuru() { 
+    async function simpanRegistrasiGuru() { 
         const nama = document.getElementById('regGuruNama').value.trim();
         const nip = document.getElementById('regGuruNip').value.trim();
         const sekolah = document.getElementById('regGuruSekolah').value.trim();
@@ -2103,7 +2104,7 @@ input:checked + .slider:before { transform: translateX(24px); }
             return;
         }
 
-        dbGuru.push({
+        await api.post('guru', {
             id_guru: "GURU" + Date.now(), 
             nama_guru: nama,
             nip: nip,
@@ -2112,7 +2113,6 @@ input:checked + .slider:before { transform: translateX(24px); }
             username: username, 
             password: password
         }); 
-        localStorage.setItem('dileforfit_guru', JSON.stringify(dbGuru)); 
         showModal("Sukses", "Akun Guru Berhasil Dibuat"); 
         nav('page-login'); 
     }
@@ -2265,9 +2265,9 @@ input:checked + .slider:before { transform: translateX(24px); }
         `;
     }
 
-    function simpanLatihan(nama_latihan, id_materi_latihan) {
+    async function simpanLatihan(nama_latihan, id_materi_latihan) {
         if (!loggedInUser || currentRoleLogin !== 'siswa') {
-            alert('Harap login sebagai siswa untuk menyimpan data latihan.');
+            showModal('Berhasil','Harap login sebagai siswa untuk menyimpan data latihan.');
             return;
         }
 
@@ -2279,9 +2279,8 @@ input:checked + .slider:before { transform: translateX(24px); }
             id_siswa: loggedInUser.id_siswa
         };
 
-        dataLatihan.push(dataBaru);
-        localStorage.setItem('dileforfit_latihan', JSON.stringify(dataLatihan));
-        alert('Data latihan berhasil disimpan!');
+        await api.post('latihan', dataBaru);
+        showModal('Berhasil','Data latihan berhasil disimpan!');
     }
 
     function toggleTutorialAccordion(button) {
@@ -2443,7 +2442,7 @@ input:checked + .slider:before { transform: translateX(24px); }
         document.getElementById('modalBuatAsesmen').style.display = 'flex'; 
     }
 
-    function simpanAsesmenBaru() {
+    async function simpanAsesmenBaru() {
         const judul = document.getElementById('inputJudulAsesmen').value.trim(); 
         const jenis = document.getElementById('inputJenisAsesmen').value; 
         const tokenBaru = document.getElementById('inputTokenAsesmen').value.trim().toUpperCase();
@@ -2452,11 +2451,11 @@ input:checked + .slider:before { transform: translateX(24px); }
             return showModal("Perhatian", "Silakan isi Judul dan Token Asesmen terlebih dahulu.");
         }
 
-        if(dataAssesment.find(a => a.token_assesment === tokenBaru && a.status === 'Aktif')) {
+        const exist = await api.get('assesment', {token_assesment: tokenBaru, status: 'Aktif'}); if(exist.length > 0) {
             return showModal("Perhatian", "Token sudah digunakan, gunakan token lain.");
         }
 
-        dataAssesment.push({ 
+        await api.post('assesment', { 
             id_assesment: "ASK" + Date.now(), 
             id_guru: loggedInUser.id_guru, 
             judul_assesment: judul, 
@@ -2465,22 +2464,20 @@ input:checked + .slider:before { transform: translateX(24px); }
             tanggal: new Date().toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'}), 
             status: "Aktif" 
         });
-
-        localStorage.setItem('dileforfit_data_assesment', JSON.stringify(dataAssesment));
         closeModal('modalBuatAsesmen'); 
         renderTabelAsesmen(); 
         showModal("Sesi Berhasil Dibuat", `Siswa dapat masuk menggunakan Token:\n\n` + tokenBaru);
     }
 
-    function renderTabelAsesmen() {
+    async function renderTabelAsesmen() {
         if ($.fn.DataTable.isDataTable('#tabelAsesmen')) { 
             $('#tabelAsesmen').DataTable().destroy(); 
         }
         const tbody = document.querySelector('#tabelAsesmen tbody'); 
         tbody.innerHTML = '';
 
-        dataAssesment.filter(a => a.id_guru === loggedInUser.id_guru).forEach((a, index) => {
-            const badgeColor = a.status === 'Aktif' ? '#4CAF50' : '#E53935';
+        (await api.get('assesment', {id_guru: loggedInUser.id_guru})).forEach((a, index) => {
+            const badgeColor = a.status.toLowerCase() === 'aktif' ? '#4CAF50' : '#E53935';
             tbody.innerHTML += `
             <tr>
                 <td style="text-align: center; font-weight: bold;">${index + 1}</td>
@@ -2508,8 +2505,8 @@ input:checked + .slider:before { transform: translateX(24px); }
         });
     }
 
-    function bukaRincianAsesmenGuru(id_assesment) {
-        const asesmen = dataAssesment.find(a => a.id_assesment === id_assesment);
+    async function bukaRincianAsesmenGuru(id_assesment) {
+        const resA = await api.get('assesment', {id_assesment: id_assesment}); const asesmen = resA[0];
         if (!asesmen) return;
 
         globalAsesmenIdAktif = id_assesment;
@@ -2533,50 +2530,34 @@ input:checked + .slider:before { transform: translateX(24px); }
         const tbody = document.querySelector('#tabelHasilSiswa tbody'); 
         tbody.innerHTML = '';
 
-        // dataPenilaian.filter(p => p.id_assesment === id_assesment).forEach((nilai, index) => {
-        //     const dataSiswa = dbSiswa.find(s => s.id_siswa === nilai.id_siswa);
-        //     const namaLengkap = dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal";
-
-        //     let rincianHTML = `<div style="display:flex; flex-direction:column; justify-content:baseline; align-items:flex-start; flex-wrap:wrap; font-size:12px; color:#4A4A4A;">`;
-        //     if (nilai.hasil_penilaian) { 
-        //         for (const key in nilai.hasil_penilaian) { 
-        //             rincianHTML += `<span><strong>${aliasUnitTes[key] || key}:</strong> ${nilai.hasil_penilaian[key]}</span>`; 
-        //         } 
-        //     } 
-        //     rincianHTML += `</div>`;
-
-        //     let warnaKlasifikasi = "#424242";
-        //     if (nilai.keterangan.includes("Sangat")) warnaKlasifikasi = "#4CAF50"; 
-        //     else if (nilai.keterangan === "Baik") warnaKlasifikasi = "#29B6F6"; 
-        //     else if (nilai.keterangan.includes("Cukup") || nilai.keterangan.includes("Sedang")) warnaKlasifikasi = "#FF9800"; 
-        //     else if (nilai.keterangan === "Kurang") warnaKlasifikasi = "#E53935";
-
-        //     tbody.innerHTML += `
-        //     <tr>
-        //         <td style="text-align: center; font-weight: bold;">${index + 1}</td>
-        //         <td style="font-weight: 800; color: #1B5E20;">${namaLengkap}</td>
-        //         <td style="text-align: center; font-weight: 900; color: #E65100; font-size: 16px;">${nilai.total_nilai}</td>
-        //         <td>${rincianHTML}</td>
-        //         <td><span style="color: ${warnaKlasifikasi}; font-weight: 900;">${nilai.keterangan}</span></td>
-        //     </tr>
-        //     `;
-        // });
-
-        dataPenilaian.filter(p => p.id_assesment === id_assesment).forEach((nilai, index) => {
-            const dataSiswa = dbSiswa.find(s => s.id_siswa === nilai.id_siswa);
+        let nilaiList = await api.get('penilaian', {id_assesment: id_assesment});
+        for (let index = 0; index < nilaiList.length; index++) {
+            let nilai = nilaiList[index];
+            const resS = await api.get('siswa', {id_siswa: nilai.id_siswa}); const dataSiswa = resS[0];
             const namaLengkap = dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal";
+
+            // FIX JSON Parsing
+            let hasilObj = {};
+            if (nilai.hasil_penilaian) {
+                try { hasilObj = typeof nilai.hasil_penilaian === 'string' ? JSON.parse(nilai.hasil_penilaian) : nilai.hasil_penilaian; } catch(e){}
+            }
+            
+            let rawObj = {};
+            if (nilai.raw_input) {
+                try { rawObj = typeof nilai.raw_input === 'string' ? JSON.parse(nilai.raw_input) : nilai.raw_input; } catch(e){}
+            }
 
             // --- LOGIKA MENCARI NILAI TERENDAH UNTUK UMPAN BALIK ---
             let minScore = 6; 
             let lowestUnits = [];
 
-            if (nilai.hasil_penilaian) { 
-                for (const key in nilai.hasil_penilaian) { 
+            if (Object.keys(hasilObj).length > 0) { 
+                for (const key in hasilObj) { 
                     // Mencari nilai yang paling kecil
-                    if(nilai.hasil_penilaian[key] < minScore) { 
-                        minScore = nilai.hasil_penilaian[key]; 
+                    if(hasilObj[key] < minScore) { 
+                        minScore = hasilObj[key]; 
                         lowestUnits = [key]; 
-                    } else if (nilai.hasil_penilaian[key] === minScore) { 
+                    } else if (hasilObj[key] === minScore) { 
                         lowestUnits.push(key); 
                     }
                 } 
@@ -2588,10 +2569,9 @@ input:checked + .slider:before { transform: translateX(24px); }
                 umpanBalikTeks = `<span style="color:#9E9E9E; font-style:italic;">Masih dalam proses (Draft)</span>`;
             } else if (lowestUnits.length > 0) {
                 if (minScore === 5) {
-                    umpanBalikTeks = "Sangat baik di semua komponen!"; // Jika skornya 5 semua
+                    umpanBalikTeks = "Sangat baik di semua komponen!";
                 } else {
-                    // Pakai & agar lebih ringkas di tabel
-                    const teksTerendah = lowestUnits.map(k => aliasUnitTes[k]).join(" & "); 
+                    const teksTerendah = lowestUnits.map(k => aliasUnitTes[k] || k).join(" & "); 
                     umpanBalikTeks = `Fokus tingkatkan: ${teksTerendah}`;
                 }
             }
@@ -2609,22 +2589,23 @@ input:checked + .slider:before { transform: translateX(24px); }
             let rawLompat = "-", skorLompat = "-";
             let rawLariJauh = "-", skorLariJauh = "-";
             
-            if (nilai.raw_input) {
-                rawLari60 = nilai.raw_input.lari60 ? `${nilai.raw_input.lari60} detik` : "-";
-                rawGantung = nilai.raw_input.gantung ? `${nilai.raw_input.gantung} ${isPutri ? 'menit' : 'kali'}` : "-";
-                rawBaring = nilai.raw_input.baring ? `${nilai.raw_input.baring} kali` : "-";
-                rawLompat = nilai.raw_input.lompat ? `${nilai.raw_input.lompat} cm` : "-";
-                if (nilai.raw_input.lariMenit || nilai.raw_input.lariDetik) {
-                    rawLariJauh = `${nilai.raw_input.lariMenit || 0} menit ${nilai.raw_input.lariDetik || 0} detik`;
+            if (Object.keys(rawObj).length > 0) {
+                rawLari60 = rawObj.lari60 ? `${rawObj.lari60} detik` : "-";
+                // Gantung: Putra => kali, Putri => detik(ditulis 'menit' tapi biasanya detik, ikuti isPutri)
+                rawGantung = rawObj.gantung ? `${rawObj.gantung} ${isPutri ? 'detik' : 'kali'}` : "-";
+                rawBaring = rawObj.baring ? `${rawObj.baring} kali` : "-";
+                rawLompat = rawObj.lompat ? `${rawObj.lompat} cm` : "-";
+                if (rawObj.lariMenit || rawObj.lariDetik) {
+                    rawLariJauh = `${rawObj.lariMenit || 0} menit ${rawObj.lariDetik || 0} detik`;
                 }
             }
             
-            if (nilai.hasil_penilaian) {
-                skorLari60 = nilai.hasil_penilaian.lari60 || "-";
-                skorGantung = nilai.hasil_penilaian.gantung || "-";
-                skorBaring = nilai.hasil_penilaian.baring || "-";
-                skorLompat = nilai.hasil_penilaian.lompat || "-";
-                skorLariJauh = nilai.hasil_penilaian.lariJauh || "-";
+            if (Object.keys(hasilObj).length > 0) {
+                skorLari60 = hasilObj.lari60 || "-";
+                skorGantung = hasilObj.gantung || "-";
+                skorBaring = hasilObj.baring || "-";
+                skorLompat = hasilObj.lompat || "-";
+                skorLariJauh = hasilObj.lariJauh || "-";
             }
 
             tbody.innerHTML += `
@@ -2646,7 +2627,7 @@ input:checked + .slider:before { transform: translateX(24px); }
                 <td style="font-size: 13px; color: #4A4A4A; max-width: 250px; white-space: normal;">${umpanBalikTeks}</td>
             </tr>
             `;
-        });
+        }
 
         dtHasilSiswaGuruInstance = $('#tabelHasilSiswa').DataTable({ 
             "pageLength": 5, "lengthChange": false, "scrollX": true, 
@@ -2660,7 +2641,7 @@ input:checked + .slider:before { transform: translateX(24px); }
         nav('page-rincian-asesmen-guru');
     }
 
-    function toggleStatusAsesmen() {
+    async function toggleStatusAsesmen() {
         if (!globalAsesmenIdAktif) return;
 
         const isChecked = document.getElementById('rinAsesmenToggle').checked;
@@ -2669,26 +2650,33 @@ input:checked + .slider:before { transform: translateX(24px); }
         document.getElementById('rinAsesmenStatusLabel').innerText = newStatus; 
         document.getElementById('rinAsesmenStatusLabel').className = isChecked ? "status-label status-aktif" : "status-label status-tidak-aktif";
 
-        const index = dataAssesment.findIndex(a => a.id_assesment === globalAsesmenIdAktif);
-        if (index !== -1) { 
-            dataAssesment[index].status = newStatus; 
-            localStorage.setItem('dileforfit_data_assesment', JSON.stringify(dataAssesment)); 
+        // Update ke server melalui API
+        const result = await api.put('assesment', 'id_assesment', globalAsesmenIdAktif, { status: newStatus });
+        
+        if (result && result.error) {
+            showModal("Error", "Gagal mengubah status: " + result.error);
+            // Revert UI jika gagal
+            document.getElementById('rinAsesmenToggle').checked = !isChecked;
+            const oldStatus = !isChecked ? "Aktif" : "Tidak Aktif";
+            document.getElementById('rinAsesmenStatusLabel').innerText = oldStatus; 
+            document.getElementById('rinAsesmenStatusLabel').className = !isChecked ? "status-label status-aktif" : "status-label status-tidak-aktif";
         }
     }
 
-    // function exportToExcel() {
+    // async function exportToExcel() {
     //     if (!globalAsesmenIdAktif) return;
 
-    //     const asesmen = dataAssesment.find(a => a.id_assesment === globalAsesmenIdAktif);
-    //     const daftarNilaiSiswa = dataPenilaian.filter(p => p.id_assesment === globalAsesmenIdAktif);
+    //     const resA = await api.get('assesment', {id_assesment: globalAsesmenIdAktif}); const asesmen = resA[0];
+    //     const daftarNilaiSiswa = await api.get('penilaian', {id_assesment: globalAsesmenIdAktif});
 
     //     if (daftarNilaiSiswa.length === 0) {
     //         return showModal("Perhatian", "Belum ada data siswa untuk diekspor.");
     //     }
 
     //     const dataExcel = [];
-    //     daftarNilaiSiswa.forEach((nilai, index) => {
-    //         const dataSiswa = dbSiswa.find(s => s.id_siswa === nilai.id_siswa);
+    //     for (let index = 0; index < daftarNilaiSiswa.length; index++) {
+    // //         let nilai = daftarNilaiSiswa[index];
+    //         const resS = await api.get('siswa', {id_siswa: nilai.id_siswa}); const dataSiswa = resS[0];
     //         let rowData = { 
     //             "No": index + 1, 
     //             "Nama Siswa": dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal", 
@@ -2713,11 +2701,14 @@ input:checked + .slider:before { transform: translateX(24px); }
     //     XLSX.writeFile(wb, `Hasil_${asesmen.judul_assesment.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${asesmen.token_assesment}.xlsx`);
     // }
 
-    function exportToExcel() {
+    async function exportToExcel() {
         if (!globalAsesmenIdAktif) return;
 
-        const asesmen = dataAssesment.find(a => a.id_assesment === globalAsesmenIdAktif);
-        const daftarNilaiSiswa = dataPenilaian.filter(p => p.id_assesment === globalAsesmenIdAktif);
+        const resA = await api.get('assesment', {id_assesment: globalAsesmenIdAktif});
+        const asesmen = resA[0];
+        if (!asesmen) return;
+
+        const daftarNilaiSiswa = await api.get('penilaian', {id_assesment: globalAsesmenIdAktif});
 
         if (daftarNilaiSiswa.length === 0) {
             return showModal("Perhatian", "Belum ada data siswa untuk diekspor.");
@@ -2748,10 +2739,21 @@ input:checked + .slider:before { transform: translateX(24px); }
             ]
         ];
 
-        daftarNilaiSiswa.forEach((nilai, index) => {
-            const dataSiswa = dbSiswa.find(s => s.id_siswa === nilai.id_siswa);
+        for (let index = 0; index < daftarNilaiSiswa.length; index++) {
+            let nilai = daftarNilaiSiswa[index];
+            const resS = await api.get('siswa', {id_siswa: nilai.id_siswa}); const dataSiswa = resS[0];
             const isPutri = dataSiswa && dataSiswa.jenis_kelamin && dataSiswa.jenis_kelamin.toLowerCase() === 'putri';
             const namaLengkap = dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal";
+
+            let hasilObj = {};
+            if (nilai.hasil_penilaian) {
+                try { hasilObj = typeof nilai.hasil_penilaian === 'string' ? JSON.parse(nilai.hasil_penilaian) : nilai.hasil_penilaian; } catch(e){}
+            }
+            
+            let rawObj = {};
+            if (nilai.raw_input) {
+                try { rawObj = typeof nilai.raw_input === 'string' ? JSON.parse(nilai.raw_input) : nilai.raw_input; } catch(e){}
+            }
 
             let rawLari60 = "-", skorLari60 = "-";
             let rawGantung = "-", skorGantung = "-";
@@ -2759,32 +2761,32 @@ input:checked + .slider:before { transform: translateX(24px); }
             let rawLompat = "-", skorLompat = "-";
             let rawLariJauh = "-", skorLariJauh = "-";
             
-            if (nilai.raw_input) {
-                rawLari60 = nilai.raw_input.lari60 ? `${nilai.raw_input.lari60} detik` : "-";
-                rawGantung = nilai.raw_input.gantung ? `${nilai.raw_input.gantung} ${isPutri ? 'menit' : 'kali'}` : "-";
-                rawBaring = nilai.raw_input.baring ? `${nilai.raw_input.baring} kali` : "-";
-                rawLompat = nilai.raw_input.lompat ? `${nilai.raw_input.lompat} cm` : "-";
-                if (nilai.raw_input.lariMenit || nilai.raw_input.lariDetik) {
-                    rawLariJauh = `${nilai.raw_input.lariMenit || 0} menit ${nilai.raw_input.lariDetik || 0} detik`;
+            if (Object.keys(rawObj).length > 0) {
+                rawLari60 = rawObj.lari60 ? `${rawObj.lari60} detik` : "-";
+                rawGantung = rawObj.gantung ? `${rawObj.gantung} ${isPutri ? 'detik' : 'kali'}` : "-";
+                rawBaring = rawObj.baring ? `${rawObj.baring} kali` : "-";
+                rawLompat = rawObj.lompat ? `${rawObj.lompat} cm` : "-";
+                if (rawObj.lariMenit || rawObj.lariDetik) {
+                    rawLariJauh = `${rawObj.lariMenit || 0} menit ${rawObj.lariDetik || 0} detik`;
                 }
             }
             
-            if (nilai.hasil_penilaian) {
-                skorLari60 = nilai.hasil_penilaian.lari60 || "-";
-                skorGantung = nilai.hasil_penilaian.gantung || "-";
-                skorBaring = nilai.hasil_penilaian.baring || "-";
-                skorLompat = nilai.hasil_penilaian.lompat || "-";
-                skorLariJauh = nilai.hasil_penilaian.lariJauh || "-";
+            if (Object.keys(hasilObj).length > 0) {
+                skorLari60 = hasilObj.lari60 || "-";
+                skorGantung = hasilObj.gantung || "-";
+                skorBaring = hasilObj.baring || "-";
+                skorLompat = hasilObj.lompat || "-";
+                skorLariJauh = hasilObj.lariJauh || "-";
             }
 
             let minScore = 6; 
             let lowestUnits = [];
-            if (nilai.hasil_penilaian) { 
-                for (const key in nilai.hasil_penilaian) { 
-                    if(nilai.hasil_penilaian[key] < minScore) { 
-                        minScore = nilai.hasil_penilaian[key]; 
+            if (Object.keys(hasilObj).length > 0) { 
+                for (const key in hasilObj) { 
+                    if(hasilObj[key] < minScore) { 
+                        minScore = hasilObj[key]; 
                         lowestUnits = [key]; 
-                    } else if (nilai.hasil_penilaian[key] === minScore) { 
+                    } else if (hasilObj[key] === minScore) { 
                         lowestUnits.push(key); 
                     }
                 } 
@@ -2797,7 +2799,7 @@ input:checked + .slider:before { transform: translateX(24px); }
                 if (minScore === 5) {
                     umpanBalikExcel = "Sangat baik di semua komponen!";
                 } else {
-                    const teksTerendah = lowestUnits.map(k => aliasUnitTes[k]).join(" & ");
+                    const teksTerendah = lowestUnits.map(k => aliasUnitTes[k] || k).join(" & ");
                     umpanBalikExcel = `Fokus tingkatkan: ${teksTerendah}`;
                 }
             }
@@ -2814,7 +2816,7 @@ input:checked + .slider:before { transform: translateX(24px); }
                 nilai.keterangan,
                 umpanBalikExcel
             ]);
-        });
+        }
 
         const ws = XLSX.utils.aoa_to_sheet(aoa); 
 
@@ -2841,7 +2843,7 @@ input:checked + .slider:before { transform: translateX(24px); }
         XLSX.writeFile(wb, fileName);
     }
 
-    // function cekToken() {
+    // async function cekToken() {
     //     const inputToken = document.getElementById('tokenInput').value.toUpperCase().trim();
 
     //     if(inputToken === 'COBACOBA') { 
@@ -2868,18 +2870,21 @@ input:checked + .slider:before { transform: translateX(24px); }
     //     }
     // }
 
-    function cekToken() {
+    async function cekToken() {
     const inputToken = document.getElementById('tokenInput').value.toUpperCase().trim();
 
+    // Jangan aktifkan
+    /*
     if(inputToken === 'COBACOBA') { 
         return bukaHalamanAsesmenDummy(); 
     }
+    */
 
-    const cekAsesmen = dataAssesment.find(a => a.token_assesment === inputToken && a.status === 'Aktif');
+    const resC = await api.get('assesment', {token_assesment: inputToken, status: 'Aktif'}); const cekAsesmen = resC[0];
 
     if(cekAsesmen) {
         // PERIKSA DATA SEBELUMNYA
-        const existingData = dataPenilaian.find(p => p.id_assesment === cekAsesmen.id_assesment && p.id_siswa === loggedInUser.id_siswa);
+        const resE = await api.get('penilaian', {id_assesment: cekAsesmen.id_assesment, id_siswa: loggedInUser.id_siswa}); const existingData = resE[0];
 
         // Jika sudah pernah submit final, blokir akses
         // if (existingData && existingData.status_pengerjaan === 'Selesai' ) {
@@ -2980,7 +2985,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 // ==========================================
 // 7. KALKULATOR TKJI & PENYIMPANAN NILAI
 // ==========================================
-    // function simpanNilaiTKJI() {
+    // async function simpanNilaiTKJI() {
     //     const vLari60 = parseFloat(document.getElementById('valLari60').value); 
     //     const vGantung = parseFloat(document.getElementById('valGantung').value); 
     //     const vBaring = parseFloat(document.getElementById('valBaring').value); 
@@ -3079,7 +3084,7 @@ input:checked + .slider:before { transform: translateX(24px); }
     //     else if(totalNilai >= 10) keteranganAkhir = "Kurang"; 
     //     else keteranganAkhir = "Kurang Sekali";
 
-    //     dataPenilaian.push({ 
+    //     await api.post('penilaian', { 
     //         id_penilaian: "NILAI" + Date.now(), 
     //         id_assesment: document.getElementById('hiddenIdAsesmen').value, 
     //         token_assesment: document.getElementById('labelTokenAktif').innerText, 
@@ -3104,7 +3109,7 @@ input:checked + .slider:before { transform: translateX(24px); }
     //     nav('page-dashboard');
     // }
 
-    function simpanNilaiTKJI(statusPengerjaan = 'Selesai') {
+    async function simpanNilaiTKJI(statusPengerjaan = 'Selesai') {
     const rawLari60 = document.getElementById('valLari60').value; 
     const rawGantung = document.getElementById('valGantung').value; 
     const rawBaring = document.getElementById('valBaring').value; 
@@ -3162,43 +3167,60 @@ input:checked + .slider:before { transform: translateX(24px); }
     const id_assesment_aktif = document.getElementById('hiddenIdAsesmen').value;
 
     // Ekstrak data lama untuk mempertahankan id_penilaian
-    const existingData = dataPenilaian.find(p => p.id_assesment === id_assesment_aktif && p.id_siswa === loggedInUser.id_siswa);
+    const resE = await api.get('penilaian', {id_assesment: id_assesment_aktif, id_siswa: loggedInUser.id_siswa}); const existingData = resE[0];
     const idPenilaianTetap = existingData ? existingData.id_penilaian : "NILAI" + Date.now();
     // Jika draft, tetap simpan tanggal awal. Jika tidak, pakai tanggal saat ini.
     const tanggalPenilaianTetap = existingData ? existingData.tanggal_penilaian : new Date().toLocaleString('id-ID');
 
     // TOLONG SESUAIKAN LAGI LANGKAH INI AGAR LEBIH EFISIEN
     // Menghapus data asesmen lama milik siswa ini dari array
-    dataPenilaian = dataPenilaian.filter(p => !(p.id_assesment === id_assesment_aktif && p.id_siswa === loggedInUser.id_siswa));
+    
+    
+    if(existingData){
+        console.log('data sudah ada');
+        if(existingData) { await api.delete('penilaian', 'id_penilaian', existingData.id_penilaian); }
+    }
+    else {
+        console.log('data baru');
+    }
+
 
     // Push data sebagai objek baru
-    dataPenilaian.push({ 
-        id_penilaian: idPenilaianTetap, 
-        id_assesment: id_assesment_aktif, 
-        token_assesment: document.getElementById('labelTokenAktif').innerText, 
-        id_siswa: loggedInUser ? loggedInUser.id_siswa : "DUMMY_SISWA", 
-        tanggal_penilaian: tanggalPenilaianTetap, 
-        total_nilai: totalNilai, 
-        keterangan: keteranganAkhir, 
-        status_pengerjaan: statusPengerjaan,
-        hasil_penilaian: { 
-            lari60: skorLari60, 
-            gantung: skorGantung, 
-            baring: skorBaring, 
-            lompat: skorLompat, 
-            lariJauh: skorLariJauh 
-        },
-        raw_input: {
-            lari60: rawLari60, 
-            gantung: rawGantung, 
-            baring: rawBaring, 
-            lompat: rawLompat, 
-            lariMenit: rawLariMenit, 
-            lariDetik: rawLariDetik
-        }
-    }); 
+    let result = null;
+    if (id_assesment_aktif === 'DUMMY_ID') {
+        result = { success: true, message: 'Ini hanya mode uji coba, data tidak disimpan di server.' };
+    } else {
+        result = await api.post('penilaian', { 
+            id_penilaian: idPenilaianTetap, 
+            id_assesment: id_assesment_aktif, 
+            token_assesment: document.getElementById('labelTokenAktif').innerText, 
+            id_siswa: loggedInUser ? loggedInUser.id_siswa : "DUMMY_SISWA", 
+            tanggal_penilaian: tanggalPenilaianTetap, 
+            total_nilai: totalNilai, 
+            keterangan: keteranganAkhir, 
+            status_pengerjaan: statusPengerjaan,
+            hasil_penilaian: { 
+                lari60: skorLari60, 
+                gantung: skorGantung, 
+                baring: skorBaring, 
+                lompat: skorLompat, 
+                lariJauh: skorLariJauh 
+            },
+            raw_input: {
+                lari60: rawLari60, 
+                gantung: rawGantung, 
+                baring: rawBaring, 
+                lompat: rawLompat, 
+                lariMenit: rawLariMenit, 
+                lariDetik: rawLariDetik
+            }
+        });
+    }
 
-    localStorage.setItem('dileforfit_data_penilaian', JSON.stringify(dataPenilaian));
+    if (result && result.error) {
+        showModal('Error Menyimpan', 'Asesmen gagal dikirim, error : ' + result.error);
+        return; // Hentikan proses, biarkan inputan utuh
+    }
 
     // Bersihkan UI setelah simpan
     document.querySelectorAll('#page-asesmen-fisik input[type="number"]').forEach(el => el.value = '');
@@ -3209,13 +3231,14 @@ input:checked + .slider:before { transform: translateX(24px); }
         showModal('Penilaian Selesai', `Total Skor Anda: ${totalNilai}\nKlasifikasi: ${keteranganAkhir}\n\nNilai Anda berhasil dikirim!`); 
     }
 
+    // debug dulu
     nav('page-dashboard');
 }
 
 // ==========================================
 // 8. LOGIKA RIWAYAT & EVALUASI BINTANG
 // ==========================================
-    function bukaRiwayatSiswa() {
+    async function bukaRiwayatSiswa() {
         nav('page-riwayat-asesmen');
 
         if ($.fn.DataTable.isDataTable('#tabelRiwayatSiswa')) { 
@@ -3224,19 +3247,22 @@ input:checked + .slider:before { transform: translateX(24px); }
         const tbody = document.querySelector('#tabelRiwayatSiswa tbody'); 
         tbody.innerHTML = '';
 
-        const riwayatSiswaIni = dataPenilaian.filter(p => p.id_siswa === loggedInUser.id_siswa).map(p => {
+        const dataNilai = await api.get('penilaian', {id_siswa: loggedInUser.id_siswa});
+        const riwayatSiswaIni = await Promise.all(dataNilai.map(async p => {
             return { ...p, _type: 'asesmen', _timestamp: p.id_penilaian ? (parseInt(p.id_penilaian.replace('NILAI', '')) || 0) : 0 };
-        });
+        }));
 
-        const latihanSiswaIni = dataLatihan.filter(l => l.id_siswa === loggedInUser.id_siswa).map(l => {
+        const dataLatih = await api.get('latihan', {id_siswa: loggedInUser.id_siswa});
+        const latihanSiswaIni = dataLatih.map(l => {
             return { ...l, _type: 'latihan', _timestamp: l.id_latihan || 0 };
         });
 
         const combinedData = [...riwayatSiswaIni, ...latihanSiswaIni].sort((a, b) => b._timestamp - a._timestamp);
 
-        combinedData.forEach((r, index) => {
+        for (let index = 0; index < combinedData.length; index++) {
+            let r = combinedData[index];
             if (r._type === 'asesmen') {
-                const refAsesmen = dataAssesment.find(a => a.id_assesment === r.id_assesment);
+                const resA = await api.get('assesment', {id_assesment: r.id_assesment}); const refAsesmen = resA[0];
                 const kategoriText = refAsesmen ? refAsesmen.jenis_assesment : 'FISIK';
 
                 tbody.innerHTML += `
@@ -3267,7 +3293,7 @@ input:checked + .slider:before { transform: translateX(24px); }
                 </tr>
                 `;
             }
-        });
+        }
 
         dtRiwayatSiswaInstance = $('#tabelRiwayatSiswa').DataTable({ 
             "pageLength": 5, "lengthChange": false, "scrollX": true, 
@@ -3279,16 +3305,15 @@ input:checked + .slider:before { transform: translateX(24px); }
         });
     }
 
-    function hapusLatihan(id_latihan) {
+    async function hapusLatihan(id_latihan) {
         if (confirm("Apakah Anda yakin ingin menghapus riwayat latihan ini?")) {
-            dataLatihan = dataLatihan.filter(l => l.id_latihan != id_latihan);
-            localStorage.setItem('dileforfit_latihan', JSON.stringify(dataLatihan));
+            await api.delete('latihan', 'id_latihan', id_latihan);
             bukaRiwayatSiswa();
         }
     }
 
-    function bukaRincianEvaluasi(id_penilaian) {
-        const record = dataPenilaian.find(p => p.id_penilaian === id_penilaian);
+    async function bukaRincianEvaluasi(id_penilaian) {
+        const resR = await api.get('penilaian', {id_penilaian: id_penilaian}); const record = resR[0];
         if(!record) return;
 
         document.getElementById('evalNamaSiswa').innerText = loggedInUser.nama_siswa || 'Siswa Tanpa Nama';
@@ -3307,50 +3332,61 @@ input:checked + .slider:before { transform: translateX(24px); }
 
         document.getElementById('evalTotalNilai').innerText = `Total Skor: ${record.total_nilai} / 25`;
 
+        // JSON Parse
+        let hasilObj = {};
+        if (record.hasil_penilaian) {
+            try { hasilObj = typeof record.hasil_penilaian === 'string' ? JSON.parse(record.hasil_penilaian) : record.hasil_penilaian; } catch(e){}
+        }
+
+        let rawObj = {};
+        if (record.raw_input) {
+            try { rawObj = typeof record.raw_input === 'string' ? JSON.parse(record.raw_input) : record.raw_input; } catch(e){}
+        }
+
         let minScore = 6; 
         let lowestUnits = [];
 
-        for (const key in record.hasil_penilaian) { 
-            if(record.hasil_penilaian[key] < minScore) { 
-                minScore = record.hasil_penilaian[key]; 
+        for (const key in hasilObj) { 
+            if(hasilObj[key] < minScore) { 
+                minScore = hasilObj[key]; 
                 lowestUnits = [key]; 
-            } else if (record.hasil_penilaian[key] === minScore) { 
+            } else if (hasilObj[key] === minScore) { 
                 lowestUnits.push(key); 
             } 
         }
 
-        const teksTerendah = lowestUnits.map(k => aliasUnitTes[k]).join(" dan ");
+        const teksTerendah = lowestUnits.map(k => aliasUnitTes[k] || k).join(" dan ");
         document.getElementById('evalFeedback').innerText = `Kamu perlu meningkatkan latihan, terutama di bidang '${teksTerendah}'.`;
 
         const containerBintang = document.getElementById('evalListUnit'); 
         containerBintang.innerHTML = '';
 
-        for (const key in record.hasil_penilaian) {
-            const skor = record.hasil_penilaian[key];
+        for (const key in hasilObj) {
+            const skor = Number(hasilObj[key]) || 0;
             const starsHTML = '★'.repeat(skor) + '☆'.repeat(5 - skor);
             
             let rawStr = '';
-            if (record.raw_input) {
+            if (Object.keys(rawObj).length > 0) {
                 if (key === 'lari60') {
-                    rawStr = ` - ${record.raw_input.lari60} detik`;
+                    rawStr = ` - ${rawObj.lari60} detik`;
                 } else if (key === 'gantung') {
-                    const std = dbSiswa.find(s => s.id_siswa === record.id_siswa) || loggedInUser;
+                    const resS = await api.get('siswa', {id_siswa: record.id_siswa}); const std = (resS && resS[0]) ? resS[0] : loggedInUser;
                     const isPutri = std && std.jenis_kelamin && std.jenis_kelamin.toLowerCase() === 'putri';
-                    rawStr = ` - ${record.raw_input.gantung} ${isPutri ? 'menit' : 'kali'}`;
+                    rawStr = ` - ${rawObj.gantung} ${isPutri ? 'detik' : 'kali'}`; // using 'detik' for putri to be consistent with earlier fixes
                 } else if (key === 'baring') {
-                    rawStr = ` - ${record.raw_input.baring} kali`;
+                    rawStr = ` - ${rawObj.baring} kali`;
                 } else if (key === 'lompat') {
-                    rawStr = ` - ${record.raw_input.lompat} cm`;
+                    rawStr = ` - ${rawObj.lompat} cm`;
                 } else if (key === 'lariJauh') {
-                	const std = dbSiswa.find(s => s.id_siswa === record.id_siswa) || loggedInUser;
+                	const resS = await api.get('siswa', {id_siswa: record.id_siswa}); const std = (resS && resS[0]) ? resS[0] : loggedInUser;
                     const isPutri = std && std.jenis_kelamin && std.jenis_kelamin.toLowerCase() === 'putri';
-                    rawStr = ` - ${isPutri ? '(1000 m)' : '(1200 m)'} ${record.raw_input.lariMenit} menit ${record.raw_input.lariDetik} detik`;
+                    rawStr = ` - ${isPutri ? '(1000 m)' : '(1200 m)'} ${rawObj.lariMenit || 0} menit ${rawObj.lariDetik || 0} detik`;
                 }
             }
 
             containerBintang.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px dashed #B3E5FC;">
-                <span style="font-weight: 800; color: #01579B; font-size: 14px; text-align: left;">${aliasUnitTes[key]}<span style="color: #424242; font-weight: normal;">${rawStr}</span></span>
+                <span style="font-weight: 800; color: #01579B; font-size: 14px; text-align: left;">${aliasUnitTes[key] || key}<span style="color: #424242; font-weight: normal;">${rawStr}</span></span>
                 <span style="color: #FF9800; font-size: 18px; letter-spacing: 2px;">${starsHTML}</span>
             </div>
             `;
@@ -3494,7 +3530,7 @@ function cekStatusAbsen() {
 }
 
 // 2. SISWA: Menyimpan data absen
-function simpanAbsensiSiswa() {
+async function simpanAbsensiSiswa() {
     const token = document.getElementById('inputTokenAbsenSiswa').value.toUpperCase().trim();
     const status = document.getElementById('inputStatusAbsenSiswa').value;
     const keterangan = document.getElementById('inputKeteranganAbsenSiswa').value.trim();
@@ -3502,21 +3538,21 @@ function simpanAbsensiSiswa() {
     if (!token) return showModal("Perhatian", "Silakan masukkan Token Absen dari Guru.");
 
     // Cari master absen yang masih aktif
-    const sesiAbsen = kodeAbsensi.find(a => a.token_absen === token && a.status === 'aktif');
+    const resSA = await api.get('kode_absensi', {token_absen: token, status: 'aktif'}); const sesiAbsen = resSA[0];
     
     if (!sesiAbsen) {
         return showModal("Gagal Absen", "Token absensi tidak valid atau sesi telah ditutup oleh Guru.");
     }
 
     // Cek apakah siswa sudah absen pakai token ini
-    const cekSudahAbsen = dataAbsensi.find(d => d.token_absen === token && d.id_siswa === loggedInUser.id_siswa);
+    const resCA = await api.get('absensi_siswa', {token_absen: token, id_siswa: loggedInUser.id_siswa}); const cekSudahAbsen = resCA[0];
     if (cekSudahAbsen) {
         closeModal('modalAbsensiSiswa');
         return showModal("Informasi", "Anda sudah mengisi daftar hadir untuk sesi token ini.");
     }
 
     // Push data
-    dataAbsensi.push({
+    await api.post('absensi_siswa', {
         id_absen: "REC" + Date.now(),
         id_siswa: loggedInUser.id_siswa,
         token_absen: token,
@@ -3524,46 +3560,42 @@ function simpanAbsensiSiswa() {
         keterangan: (status === 'Hadir' || status === 'Alfa') ? "-" : keterangan,
         tanggal_absen: getFormattedDate()
     });
-
-    localStorage.setItem('dileforfit_data_absensi', JSON.stringify(dataAbsensi));
     closeModal('modalAbsensiSiswa');
     showModal("Berhasil", "Kehadiran Anda berhasil dicatat!");
 }
 
 // 3. GURU: Buat Sesi Absen Baru
-function simpanSesiAbsensiBaru() {
+async function simpanSesiAbsensiBaru() {
     const tokenBaru = document.getElementById('inputGenerateTokenAbsen').value.toUpperCase().trim();
     if (!tokenBaru) return showModal("Perhatian", "Harap isi Token Absensi.");
 
     // Cek duplikasi token aktif
-    if (kodeAbsensi.find(a => a.token_absen === tokenBaru && a.status === 'aktif')) {
+    const ex = await api.get('kode_absensi', {token_absen: tokenBaru, status: 'aktif'}); if(ex.length > 0) {
         return showModal("Perhatian", "Token ini sedang aktif. Gunakan token lain.");
     }
 
-    kodeAbsensi.push({
+    await api.post('kode_absensi', {
         id_kode_absen: "ABS" + Date.now(),
         id_guru: loggedInUser.id_guru,
         token_absen: tokenBaru,
         tanggal_absen: getFormattedDate(),
         status: "aktif"
     });
-
-    localStorage.setItem('dileforfit_kode_absensi', JSON.stringify(kodeAbsensi));
     closeModal('modalBuatAbsensiGuru');
     renderTabelAbsensi(); // Reload tabel jika posisi sedang di halaman manajemen
     showModal("Sukses", `Sesi Absen berhasil dibuat!\n\nToken: ${tokenBaru}`);
 }
 
 // 4. GURU: Render Tabel Manajemen Absensi
-function renderTabelAbsensi() {
+async function renderTabelAbsensi() {
     if ($.fn.DataTable.isDataTable('#tabelManajemenAbsensi')) { 
         $('#tabelManajemenAbsensi').DataTable().destroy(); 
     }
     const tbody = document.querySelector('#tabelManajemenAbsensi tbody'); 
     tbody.innerHTML = '';
 
-    kodeAbsensi.filter(a => a.id_guru === loggedInUser.id_guru).forEach((a, index) => {
-        const badgeColor = a.status === 'aktif' ? '#4CAF50' : '#E53935';
+    (await api.get('kode_absensi', {id_guru: loggedInUser.id_guru})).forEach((a, index) => {
+        const badgeColor = a.status.toLowerCase() === 'aktif' ? '#4CAF50' : '#E53935';
         tbody.innerHTML += `
         <tr>
             <td style="text-align: center; font-weight: bold;">${index + 1}</td>
@@ -3584,8 +3616,8 @@ function renderTabelAbsensi() {
 }
 
 // 5. GURU: Buka Rincian & Tabel Siswa
-function bukaRincianAbsensi(id_kode_absen) {
-    const absen = kodeAbsensi.find(a => a.id_kode_absen === id_kode_absen);
+async function bukaRincianAbsensi(id_kode_absen) {
+    const resAb = await api.get('kode_absensi', {id_kode_absen: id_kode_absen}); const absen = resAb[0];
     if (!absen) return;
 
     globalAbsenIdAktif = id_kode_absen;
@@ -3607,9 +3639,10 @@ function bukaRincianAbsensi(id_kode_absen) {
     const tbody = document.querySelector('#tabelRincianAbsensiSiswa tbody'); 
     tbody.innerHTML = '';
 
-    const listAbsenSiswa = dataAbsensi.filter(d => d.token_absen === absen.token_absen);
-    listAbsenSiswa.forEach((rec, index) => {
-        const dataSiswa = dbSiswa.find(s => s.id_siswa === rec.id_siswa);
+    const listAbsenSiswa = await api.get('absensi_siswa', {token_absen: absen.token_absen});
+    for (let index = 0; index < listAbsenSiswa.length; index++) {
+        let rec = listAbsenSiswa[index];
+        const resS = await api.get('siswa', {id_siswa: rec.id_siswa}); const dataSiswa = resS[0];
         const namaLengkap = dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal";
         
         let warnaStatus = "#424242";
@@ -3626,7 +3659,7 @@ function bukaRincianAbsensi(id_kode_absen) {
             <td>${rec.keterangan || '-'}</td>
         </tr>
         `;
-    });
+    }
 
     $('#tabelRincianAbsensiSiswa').DataTable({ 
         "pageLength": 5, "lengthChange": false, "scrollX": true, 
@@ -3637,7 +3670,7 @@ function bukaRincianAbsensi(id_kode_absen) {
 }
 
 // 6. GURU: Toggle Status Absen Aktif/Tidak Aktif
-function toggleStatusAbsensi() {
+async function toggleStatusAbsensi() {
     if (!globalAbsenIdAktif) return;
 
     const isChecked = document.getElementById('rinAbsenToggle').checked;
@@ -3646,20 +3679,26 @@ function toggleStatusAbsensi() {
     document.getElementById('rinAbsenStatusLabel').innerText = newStatus; 
     document.getElementById('rinAbsenStatusLabel').className = isChecked ? "status-label status-aktif" : "status-label status-tidak-aktif";
 
-    const index = kodeAbsensi.findIndex(a => a.id_kode_absen === globalAbsenIdAktif);
-    if (index !== -1) { 
-        kodeAbsensi[index].status = newStatus; 
-        localStorage.setItem('dileforfit_kode_absensi', JSON.stringify(kodeAbsensi)); 
-        
-        // Render ulang tabel utama di background supaya sinkron
-        const tabelContainer = document.querySelector('#tabelManajemenAbsensi tbody');
-        if(tabelContainer) renderTabelAbsensi();
+    // Update ke server
+    const result = await api.put('kode_absensi', 'id_kode_absen', globalAbsenIdAktif, { status: newStatus });
+    
+    if (result && result.error) {
+        showModal("Error", "Gagal mengubah status absen: " + result.error);
+        document.getElementById('rinAbsenToggle').checked = !isChecked;
+        const oldStatus = !isChecked ? "aktif" : "tidak aktif";
+        document.getElementById('rinAbsenStatusLabel').innerText = oldStatus; 
+        document.getElementById('rinAbsenStatusLabel').className = !isChecked ? "status-label status-aktif" : "status-label status-tidak-aktif";
+        return;
     }
+
+    // Render ulang tabel utama di background supaya sinkron
+    const tabelContainer = document.querySelector('#tabelManajemenAbsensi tbody');
+    if(tabelContainer) renderTabelAbsensi();
 }
 
 // 9. LOGIKA RIWAYAT absensi
 // ==========================================
-    function bukaRiwayatAbsensiSiswa() {
+    async function bukaRiwayatAbsensiSiswa() {
         nav('page-riwayat-absensi');
 
         if ($.fn.DataTable.isDataTable('#tabelRiwayatAbsen')) { 
@@ -3669,7 +3708,7 @@ function toggleStatusAbsensi() {
         tbody.innerHTML = '';
 
         // data Absen
-        const riwayatAbsenSiswaIni = dataAbsensi.filter(p => p.id_siswa === loggedInUser.id_siswa);
+        const riwayatAbsenSiswaIni = await api.get('absensi_siswa', {id_siswa: loggedInUser.id_siswa});
 
         [...riwayatAbsenSiswaIni].reverse().forEach((r, index) => {
 
@@ -3705,6 +3744,23 @@ function bukaModalAbsen(){
                 document.getElementById('boxKeteranganAbsen').style.display = 'none';
                 document.getElementById('modalAbsensiSiswa').style.display = 'flex';
 }
+
+// 10. INISIALISASI AUTO-FILL LOGIN
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const savedLoginStr = localStorage.getItem('dileforfit_data-login');
+        if (savedLoginStr) {
+            const savedData = JSON.parse(savedLoginStr);
+            if (savedData.role && savedData.username && savedData.password) {
+                setLoginRole(savedData.role);
+                document.getElementById('loginUsername').value = savedData.username;
+                document.getElementById('loginPassword').value = savedData.password;
+            }
+        }
+    } catch(e) {
+        console.error("Gagal membaca data login dari localStorage", e);
+    }
+});
 // ==========================================
 </script>
 </body>
