@@ -288,7 +288,7 @@ const dataTutorialLatihan = [
                 deskripsi: "Sprint 30 meter, lalu putar cepat kembali.",
                 volume: "4 set",
                 peran_teman: "Mengukur waktu total.",
-                video: "sprint_30_m.mp4",
+                video: "shuttle_run_2.mp4", //"sprint_30_m.mp4",
                 tujuan: "Menggabungkan latihan kecepatan lari lurus dengan kemampuan mengubah arah secara cepat dan terkontrol.",
                 langkah: [
                     "Tempatkan titik start, titik sprint sejauh 30 meter, dan tentukan titik/arah untuk agility turn setelahnya (misalnya berbelok ke kanan atau kiri, atau kembali ke arah semula).",
