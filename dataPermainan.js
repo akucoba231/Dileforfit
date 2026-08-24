@@ -135,7 +135,7 @@ const dataTutorialLatihan = [
                     deskripsi: "Sprint 30 meter, lalu putar cepat kembali.",
                     volume: "4 set",
                     peran_teman: "Mengukur waktu total.",
-                    video: "sprint_30_m.mp4"
+                    video: "shuttle_run_2.mp4"//"sprint_30_m.mp4"
                 }
             ]
         }
