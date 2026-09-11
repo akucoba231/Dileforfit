@@ -742,6 +742,20 @@ li {
 .tahan {
   background: #aeaeae;
 }
+
+.white-text {
+    color: #fff;
+}
+
+.footer {
+    text-align: center;
+    padding: 3% 2%;
+    background: linear-gradient(180deg, #60A5FA 0%, #2563EB 100%);
+    color:  #fff;
+    font-weight: bold;
+    border-radius:  10px 10px 0px 0px;
+}
+
 </style>
 </head>
 <body>
@@ -907,7 +921,7 @@ li {
             </div>
         </div>
 
-        <div id="page-home" class="page active">
+    <div id="page-home" class="page active">
             <div class="logo-image">
                <img src="assets/logo.png" alt="logo-apps" />
            </div>
@@ -1773,11 +1787,14 @@ li {
     </div>
 
 
-     <div id="globalBottomNav" class="bottom-nav" style="display:none;">
-    <button id="btnBackBottom" class="btn-warning">Kembali</button>
-    <button id="btnNext" onclick="">Selanjutnya</button>
-</div>
-    
+    <div id="globalBottomNav" class="bottom-nav" style="display:none;">
+        <button id="btnBackBottom" class="btn-warning">Kembali</button>
+        <button id="btnNext" onclick="">Selanjutnya</button>
+    </div>
+
+    <footer class="footer" id="footerApps">
+        &copy; 2026 Dileforfit - Sigit Faturohman, S. Pd
+    </footer>    
 
 </div>
 
@@ -2359,9 +2376,9 @@ li {
 
             accordionHTML += `
             <div class="tutorial-accordion">
-                <button class="tutorial-accordion-header" onclick="toggleTutorialAccordion(this)">
+                <button class="tutorial-accordion-header ${currentRoleLogin == 'guru' ? 'white-text' : ''}" onclick="toggleTutorialAccordion(this)">
                     <span>${latihan.nama.split('(')[0]}</span>
-                    <span class="tutorial-accordion-symbol">+</span>
+                    <span class="tutorial-accordion-symbol ${currentRoleLogin == 'guru' ? 'white-text' : ''}">+</span>
                 </button>
 
                 <div class="tutorial-accordion-body">
@@ -2432,12 +2449,19 @@ li {
     }
     
     function lock(id, on = true){
+      if(currentRoleLogin == "guru"){
+        return; //jangan dikunci kalau guru
+      }
+
       let el = document.getElementById(id);
       el.classList.add('tahan');
       el.setAttribute('disabled','');
       if(!on){
         el.classList.remove('tahan');
         el.removeAttribute('disabled');
+      }
+      else {
+        showModal('Perhatian','lakukan latihan sebelum melanjutkan.')
       }
     }
 
@@ -3546,6 +3570,7 @@ li {
     const page = document.getElementById(targetId);
     const bottomNav = document.getElementById('globalBottomNav');
     const btnBackBottom = document.getElementById('btnBackBottom');
+    const footerApps = document.getElementById('footerApps');
     const btnNext = document.getElementById('btnNext');
    // let tmpNext = btnNext.textContent
     bottomNav.style.display = 'flex';
@@ -3584,7 +3609,7 @@ li {
       btnNext.textContent = "Selanjutnya";
       if(targetId === 'page-tutorial-detail'){
         lock('btnNext', true);
-		  showModal('Perhatian','lakukan latihan sebelum melanjutkan.')
+		  
       }
     }
 
@@ -3592,6 +3617,12 @@ li {
     {
 	console.log('bukan');
         bottomNav.style.display = 'none';
+        if(targetId === "page-reset-password"){
+            footerApps.style.display = 'none';
+        }
+        else {
+            footerApps.style.display = 'block';
+        }
 	return;
     }
     // cek tombol kembali di atas
@@ -3599,6 +3630,7 @@ li {
 
     if (backBtnTop) {
         bottomNav.style.display = 'flex';
+        footerApps.style.display = 'none';
 
         // ambil onclick dari tombol atas, lalu copy ke tombol bawah
         const onclickAttr = backBtnTop.getAttribute('onclick');
