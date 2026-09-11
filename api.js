@@ -58,6 +58,7 @@ function handleError(prefix, errorMsg) {
     if (typeof showModal === 'function') {
         showModal("Error", errorMsg);
     }
+    return errorMsg;
 }
 
 const api = {
@@ -71,7 +72,7 @@ const api = {
             return await response.json();
         } catch (error) {
             handleError('GET', error.message);
-            return [];
+            return error;
         } finally {
             hideLoading();
         }
