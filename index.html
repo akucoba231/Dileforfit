@@ -948,7 +948,33 @@ li {
             <input type="password" id="loginPassword" placeholder="Password">
         </div>
         <button id="btnProsesLogin" onclick="prosesLogin()" style="width: 80%; font-size: 18px; margin-top: 10px;">Masuk ➔</button>
+        <p class="kembali" style="margin-top: 15px; cursor: pointer; text-decoration: underline;" onclick="nav('page-reset-password')">Lupa Password?</p>
         <p class="daftar-link" onclick="document.getElementById('modalPilihDaftar').style.display='flex'">Belum punya akun? Daftar di sini</p>
+    </div>
+
+    <div id="page-reset-password" class="page" style="text-align: left;">
+        <div class="top-bar">
+            <button class="btn-back-ios" onclick="nav('page-login')">
+                <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg> Kembali
+            </button>
+        </div>
+        <div class="title-text">Reset Password</div>
+        
+        <!-- Step 1: Request OTP -->
+        <div id="step-request-reset" class="content-box form-register">
+            <p style="font-size: 14px; color: #4A4A4A; margin-bottom: 15px;">Masukkan email yang terdaftar untuk menerima kode verifikasi reset password.</p>
+            <label class="form-label">Email Akun</label>
+            <input type="email" id="resetEmail" placeholder="email@contoh.com">
+            <button id="btnAjukanReset" onclick="requestResetPassword()" style="margin-top: 20px; width: 100%;">Ajukan Reset Password</button>
+        </div>
+
+        <!-- Step 2: Verify OTP -->
+        <div id="step-verify-reset" class="content-box form-register" style="display: none;">
+            <p style="font-size: 14px; color: #4A4A4A; margin-bottom: 15px;">Kode verifikasi (OTP) telah dikirim ke email Anda. Silakan masukkan kode tersebut di bawah ini.</p>
+            <label class="form-label">Kode Verifikasi (OTP)</label>
+            <input type="text" id="resetOtp" placeholder="Masukkan 6 digit kode" maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 1px; font-weight: bold;">
+            <button id="btnVerifikasiReset" onclick="verifyResetPassword()" style="margin-top: 20px; width: 100%;">Verifikasi & Reset Password</button>
+        </div>
     </div>
 
     <div id="page-register-siswa" class="page" style="text-align: left;">
@@ -1986,6 +2012,7 @@ li {
             html += `<div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 8px;"><strong>Asal Sekolah:</strong> ${loggedInUser.asal_sekolah}</div>`;
             html += `<div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 8px;"><strong>Kelas:</strong> ${loggedInUser.kelas}</div>`;
             html += `<div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 8px;"><strong>No. Absen:</strong> ${loggedInUser.absen}</div>`;
+            html += `<div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 8px;"><strong>Email:</strong> ${loggedInUser.email || '-'}</div>`;
             html += `<div style="padding-bottom: 8px;"><strong>Jenis Kelamin:</strong> ${loggedInUser.jenis_kelamin}</div>`;
 
             modalHtml += `<label class="form-label">Nama Lengkap</label><input type="text" id="editNama" value="${loggedInUser.nama_siswa}">`;
@@ -1993,6 +2020,7 @@ li {
             modalHtml += `<label class="form-label">Asal Sekolah</label><input type="text" id="editSekolah" value="${loggedInUser.asal_sekolah}">`;
             modalHtml += `<label class="form-label">Kelas</label><input type="text" id="editKelas" value="${loggedInUser.kelas}">`;
             modalHtml += `<label class="form-label">No. Absen</label><input type="number" id="editAbsen" value="${loggedInUser.absen}">`;
+            modalHtml += `<label class="form-label">Email</label><input type="email" id="editEmailSiswa" value="${loggedInUser.email || ''}">`;
             modalHtml += `<label class="form-label">Jenis Kelamin</label>
                 <select id="editGender" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #B0BEC5;">
                     <option value="Putra" ${loggedInUser.jenis_kelamin === 'Putra' ? 'selected' : ''}>Putra</option>
@@ -2034,8 +2062,9 @@ li {
             const newKelas = document.getElementById('editKelas').value.trim();
             const newAbsen = document.getElementById('editAbsen').value.trim();
             const newGender = document.getElementById('editGender').value;
+            const newEmail = document.getElementById('editEmailSiswa').value.trim();
 
-            if (!newSekolah || !newKelas || !newAbsen) {
+            if (!newSekolah || !newKelas || !newAbsen || !newEmail) {
                 showModal("Peringatan", "Semua data wajib diisi!");
                 return;
             }
@@ -2046,6 +2075,7 @@ li {
             loggedInUser.kelas = newKelas;
             loggedInUser.absen = newAbsen;
             loggedInUser.jenis_kelamin = newGender;
+            loggedInUser.email = newEmail;
             if (newPassword) loggedInUser.password = newPassword;
 
             await api.put('siswa', 'id_siswa', loggedInUser.id_siswa, loggedInUser);
@@ -2091,10 +2121,11 @@ li {
         const sekolah = document.getElementById('regSiswaSekolah').value.trim();
         const kelas = document.getElementById('regSiswaKelas').value.trim();
         const absen = document.getElementById('regSiswaAbsen').value.trim();
+        const email = document.getElementById('regSiswaEmail').value.trim();
         const username = document.getElementById('regSiswaUsername').value.trim();
         const password = document.getElementById('regSiswaPassword').value.trim();
         
-        if (!nama || !sekolah || !kelas || !absen || !username || !password) {
+        if (!nama || !sekolah || !kelas || !absen || !email || !username || !password) {
             showModal("Peringatan", "Semua kolom harus diisi!");
             return;
         }
@@ -2106,6 +2137,7 @@ li {
             kelas: kelas, 
             absen: absen, 
             jenis_kelamin: document.getElementById('regSiswaGender').value, 
+            email: email,
             username: username,
             password: password
         }); 
@@ -2137,6 +2169,83 @@ li {
         }); 
         showModal("Sukses", "Akun Guru Berhasil Dibuat"); 
         nav('page-login'); 
+    }
+
+    // ==========================================
+    // LOGIKA RESET PASSWORD
+    // ==========================================
+    let currentResetEmail = '';
+
+    async function requestResetPassword() {
+        const email = document.getElementById('resetEmail').value.trim();
+        if (!email) {
+            showModal("Peringatan", "Harap masukkan email akun Anda.");
+            return;
+        }
+
+        const btn = document.getElementById('btnAjukanReset');
+        btn.disabled = true;
+        btn.innerText = 'Mengirim kode...';
+        loadingOverlay.style.display = 'flex';
+
+        try {
+            const res = await api.get('request-reset/' + encodeURIComponent(email));
+            
+            // Success
+            showModal("Berhasil", res.message || "Kode verifikasi telah dikirim ke email Anda.");
+            currentResetEmail = email;
+            document.getElementById('resetEmail').disabled = true;
+            btn.style.display = 'none';
+            document.getElementById('step-verify-reset').style.display = 'block';
+            document.getElementById('resetOtp').focus();
+
+        } catch (error) {
+            showModal("Peringatan", error.message || "Gagal mengajukan reset password.");
+            btn.disabled = false;
+            btn.innerText = 'Ajukan Reset Password';
+        } finally {
+            loadingOverlay.style.display = 'none';
+        }
+    }
+
+    async function verifyResetPassword() {
+        const otp = document.getElementById('resetOtp').value.trim();
+        if (!otp || otp.length !== 6) {
+            showModal("Peringatan", "Harap masukkan 6 digit kode verifikasi.");
+            return;
+        }
+
+        const btn = document.getElementById('btnVerifikasiReset');
+        btn.disabled = true;
+        btn.innerText = 'Memverifikasi...';
+        loadingOverlay.style.display = 'flex';
+
+        try {
+            const res = await api.get('verify-reset/' + encodeURIComponent(currentResetEmail) + '/' + encodeURIComponent(otp));
+            
+            // Success
+            showModal("Sukses", res.message || "Password berhasil direset menjadi 123.");
+            
+            // Reset form
+            document.getElementById('resetEmail').value = '';
+            document.getElementById('resetEmail').disabled = false;
+            document.getElementById('resetOtp').value = '';
+            document.getElementById('step-verify-reset').style.display = 'none';
+            document.getElementById('btnAjukanReset').style.display = 'block';
+            document.getElementById('btnAjukanReset').disabled = false;
+            document.getElementById('btnAjukanReset').innerText = 'Ajukan Reset Password';
+            currentResetEmail = '';
+
+            // Redirect back to login
+            nav('page-login');
+
+        } catch (error) {
+            showModal("Peringatan", error.message || "Kode verifikasi salah atau kedaluwarsa.");
+            btn.disabled = false;
+            btn.innerText = 'Verifikasi & Reset Password';
+        } finally {
+            loadingOverlay.style.display = 'none';
+        }
     }
 
 // ==========================================
