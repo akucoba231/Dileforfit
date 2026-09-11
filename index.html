@@ -2193,6 +2193,8 @@ li {
     // ==========================================
     let currentResetEmail = '';
 
+    let catchErr = "";
+
     async function requestResetPassword() {
         const email = document.getElementById('resetEmail').value.trim();
         if (!email) {
@@ -2208,6 +2210,14 @@ li {
         try {
             const res = await api.get('request-reset/' + encodeURIComponent(email));
             
+            console.log(res)
+            catchErr = res;
+            if(catchErr.toString().includes('Error')){
+                showModal("Error", "Pastikan email yang Anda masukan benar.");        
+                btn.disabled = false;
+                btn.innerText = 'Ajukan Reset Password';
+            }
+            else {
             // Success
             showModal("Berhasil", res.message || "Kode verifikasi telah dikirim ke email Anda.");
             currentResetEmail = email;
@@ -2215,6 +2225,7 @@ li {
             btn.style.display = 'none';
             document.getElementById('step-verify-reset').style.display = 'block';
             document.getElementById('resetOtp').focus();
+            }
 
         } catch (error) {
             showModal("Peringatan", error.message || "Gagal mengajukan reset password.");
@@ -2240,6 +2251,12 @@ li {
         try {
             const res = await api.get('verify-reset/' + encodeURIComponent(currentResetEmail) + '/' + encodeURIComponent(otp));
             
+            if(res.toString().includes('Error')){
+                showModal("Error", "Kode verifikasi Anda salah atau kadaluarsa, periksa kembali kode atur ulang password");
+                btn.disabled = false;
+                btn.innerText = 'Verifikasi & Reset Password';
+            }
+            else {
             // Success
             showModal("Sukses", res.message || "Password berhasil direset menjadi 123.");
             
@@ -2255,6 +2272,7 @@ li {
 
             // Redirect back to login
             nav('page-login');
+            }
 
         } catch (error) {
             showModal("Peringatan", error.message || "Kode verifikasi salah atau kedaluwarsa.");
