@@ -921,6 +921,25 @@ li {
             </div>
         </div>
 
+        <!-- MODAL INPUT NILAI LATIHAN -->
+        <div id="modalInputNilaiLatihan" class="modal-overlay">
+            <div class="modal-content" style="border-color: #0288D1; text-align: left; max-width: 360px;">
+                <h3 id="modalLatihanTitle" style="color:#0288D1; font-weight:900; margin-bottom: 5px; text-align: center;">Lakukan Latihan dan Catat Hasil Latihan</h3>
+                <p id="modalLatihanSubtitle" style="display: none; font-weight:700; color:#757575; font-size: 13px; margin-top: 0; margin-bottom: 15px; text-align: center;">Catat capaian latihan Anda di bawah ini.</p>
+
+                <div class="content-box form-register" style="box-shadow:none; padding:15px; margin-bottom:15px;">
+                    <label id="modalLatihanFieldLabel" class="form-label">Capaian Latihan</label>
+                    <span id="modalLatihanFieldDesc" class="desc-asesmen" style="margin-bottom: 6px; font-size: 12px; color: #757575; font-weight: 700;">Masukkan angka hasil capaian Anda.</span>
+                    <input type="number" step="any" id="inputNilaiLatihanRaw" placeholder="Masukkan angka..." style="padding: 12px 15px; font-size: 16px;">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn-warning" onclick="closeModal('modalInputNilaiLatihan')" style="width: 50%;">Batal</button>
+                    <button onclick="prosesSimpanNilaiLatihan()" class="btn-success" style="width: 50%;">Simpan ✔</button>
+                </div>
+            </div>
+        </div>
+
     <div id="page-home" class="page active">
             <div class="logo-image">
                <img src="assets/logo.png" alt="logo-apps" />
@@ -962,7 +981,7 @@ li {
             <input type="password" id="loginPassword" placeholder="Password">
         </div>
         <button id="btnProsesLogin" onclick="prosesLogin()" style="width: 80%; font-size: 18px; margin-top: 10px;">Masuk ➔</button>
-        <p class="kembali" style="margin-top: 15px; cursor: pointer; text-decoration: underline; display: none;" onclick="nav('page-reset-password')">Lupa Password?</p>
+        <p class="kembali" style="margin-top: 15px; cursor: pointer; text-decoration: underline;" onclick="nav('page-reset-password')">Lupa Password?</p>
         <p class="daftar-link" onclick="document.getElementById('modalPilihDaftar').style.display='flex'">Belum punya akun? Daftar di sini</p>
     </div>
 
@@ -2258,7 +2277,7 @@ li {
             }
             else {
             // Success
-            showModal("Sukses", res.message || "Password berhasil direset menjadi 123.");
+            showModal("Sukses", res.message || "Password akun berhasil direset menjadi 123, gunakan menu Pengaturan untuk mengubah password ini.");
             
             // Reset form
             document.getElementById('resetEmail').value = '';
@@ -2483,23 +2502,213 @@ li {
       }
     }
 
-    async function simpanLatihan(nama_latihan, id_materi_latihan) {
+    function hitungSkorTKJITunggal(key, rawVal, gender) {
+        const val = parseFloat(rawVal) || 0;
+        const isPutra = (gender || 'Putra').toLowerCase() === 'putra';
+
+        switch(key) {
+            case 'lari60':
+                if (isPutra) {
+                    if (val > 0 && val <= 7.2) return 5;
+                    if (val > 0 && val <= 8.3) return 4;
+                    if (val > 0 && val <= 9.6) return 3;
+                    if (val > 0 && val <= 11.0) return 2;
+                    return 1;
+                } else {
+                    if (val > 0 && val <= 8.4) return 5;
+                    if (val > 0 && val <= 9.8) return 4;
+                    if (val > 0 && val <= 11.4) return 3;
+                    if (val > 0 && val <= 13.4) return 2;
+                    return 1;
+                }
+
+            case 'gantung':
+                if (isPutra) {
+                    if (val >= 19) return 5;
+                    if (val >= 14) return 4;
+                    if (val >= 9) return 3;
+                    if (val >= 5) return 2;
+                    return 1;
+                } else {
+                    if (val >= 41) return 5;
+                    if (val >= 22) return 4;
+                    if (val >= 10) return 3;
+                    if (val >= 3) return 2;
+                    return 1;
+                }
+
+            case 'baring':
+                if (isPutra) {
+                    if (val >= 41) return 5;
+                    if (val >= 30) return 4;
+                    if (val >= 21) return 3;
+                    if (val >= 10) return 2;
+                    return 1;
+                } else {
+                    if (val >= 28) return 5;
+                    if (val >= 20) return 4;
+                    if (val >= 10) return 3;
+                    if (val >= 3) return 2;
+                    return 1;
+                }
+
+            case 'lompat':
+                if (isPutra) {
+                    if (val >= 73) return 5;
+                    if (val >= 60) return 4;
+                    if (val >= 50) return 3;
+                    if (val >= 39) return 2;
+                    return 1;
+                } else {
+                    if (val >= 50) return 5;
+                    if (val >= 39) return 4;
+                    if (val >= 31) return 3;
+                    if (val >= 23) return 2;
+                    return 1;
+                }
+
+            default:
+                return 1;
+        }
+    }
+
+    let tempLatihanAktif = null;
+
+    function simpanLatihan(nama_latihan, id_materi_latihan) {
         if (!loggedInUser || currentRoleLogin !== 'siswa') {
-            showModal('Berhasil','Harap login sebagai siswa untuk menyimpan data latihan.');
+            showModal('Perhatian', 'Harap login sebagai siswa untuk menyimpan data latihan.');
             return;
         }
 
-        const dataBaru = {
-            id_latihan: Date.now(),
-            nama_latihan: nama_latihan,
+        const isPutri = loggedInUser.jenis_kelamin && loggedInUser.jenis_kelamin.toLowerCase() === 'putri';
+        let key = '';
+        let satuan = '';
+        let namaTes = '';
+        let labelInput = '';
+        let descInput = '';
+        let stepInput = '1';
+        let placeholderInput = '';
+
+        if (id_materi_latihan === 'kecepatan') {
+            key = 'lari60';
+            satuan = 'detik';
+            namaTes = 'Sprint 60 M';
+            labelInput = 'Waktu Sprint 60 M (detik)';
+            descInput = 'Catat waktu tempuh lari cepat Anda dalam satuan detik.';
+            stepInput = '0.01';
+            placeholderInput = 'Contoh: 8.2';
+        } else if (id_materi_latihan === 'kekuatan') {
+            key = 'gantung';
+            if (isPutri) {
+                satuan = 'detik';
+                namaTes = 'Hanging';
+                labelInput = 'Tahan Gantung Siku Tekuk (detik)';
+                descInput = 'Catat lama waktu menahan posisi gantung siku tekuk.';
+                stepInput = '1';
+                placeholderInput = 'Contoh: 25';
+            } else {
+                satuan = 'kali';
+                namaTes = 'Pull-Up';
+                labelInput = 'Gantung Angkat Tubuh / Pull-Up (kali)';
+                descInput = 'Catat jumlah angkatan tubuh yang sempurna.';
+                stepInput = '1';
+                placeholderInput = 'Contoh: 12';
+            }
+        } else if (id_materi_latihan === 'daya-tahan') {
+            key = 'baring';
+            satuan = 'kali';
+            namaTes = 'Sit-Up';
+            labelInput = 'Baring Duduk / Sit-Up 60 Detik (kali)';
+            descInput = 'Catat jumlah repetisi sit-up Anda selama 60 detik.';
+            stepInput = '1';
+            placeholderInput = 'Contoh: 30';
+        } else if (id_materi_latihan === 'daya-ledak') {
+            key = 'lompat';
+            satuan = 'cm';
+            namaTes = 'Long Jump';
+            labelInput = 'Loncatan Tegak / Long Jump (cm)';
+            descInput = 'Catat selisih raihan loncatan tertinggi Anda dalam cm.';
+            stepInput = '1';
+            placeholderInput = 'Contoh: 45';
+        } else {
+            key = 'latihan';
+            satuan = '';
+            namaTes = nama_latihan;
+            labelInput = 'Nilai Capaian Latihan';
+            descInput = 'Masukkan angka capaian latihan Anda.';
+            stepInput = '1';
+            placeholderInput = 'Contoh: 10';
+        }
+
+        tempLatihanAktif = {
+            nama_latihan_asli: nama_latihan,
+            nama_latihan: namaTes,
             id_materi_latihan: id_materi_latihan,
-            tangal_melakukan: new Date().toISOString(),
-            id_siswa: loggedInUser.id_siswa
+            key: key,
+            satuan: satuan
         };
 
-        await api.post('latihan', dataBaru);
-        lock("btnNext",false)
-        showModal('Berhasil','Data latihan berhasil disimpan!');
+        document.getElementById('modalLatihanTitle').innerText = 'Lakukan Latihan dan Catat Nilai ' + namaTes;
+        document.getElementById('modalLatihanSubtitle').innerText = 'Variasi: ' + nama_latihan;
+        document.getElementById('modalLatihanFieldLabel').innerText = labelInput;
+        document.getElementById('modalLatihanFieldDesc').innerText = descInput;
+
+        const inputEl = document.getElementById('inputNilaiLatihanRaw');
+        inputEl.step = stepInput;
+        inputEl.placeholder = placeholderInput;
+        inputEl.value = '';
+
+        document.getElementById('modalInputNilaiLatihan').style.display = 'flex';
+        setTimeout(() => inputEl.focus(), 150);
+    }
+
+    async function prosesSimpanNilaiLatihan() {
+        if (!tempLatihanAktif || !loggedInUser) return;
+
+        const inputEl = document.getElementById('inputNilaiLatihanRaw');
+        const rawStr = inputEl.value.trim();
+
+        if (rawStr === '' || isNaN(parseFloat(rawStr))) {
+            showModal('Perhatian', 'Harap masukkan angka capaian hasil latihan Anda.');
+            return;
+        }
+
+        const rawNum = parseFloat(rawStr);
+        if (rawNum < 0) {
+            showModal('Perhatian', 'Nilai latihan tidak boleh bernilai negatif.');
+            return;
+        }
+
+        // Kalkulasi skor konversi (1 - 5)
+        const skorNilai = hitungSkorTKJITunggal(tempLatihanAktif.key, rawNum, loggedInUser.jenis_kelamin);
+
+        const rawInputObj = {};
+        rawInputObj[tempLatihanAktif.key] = rawNum;
+
+        const hasilPenilaianObj = {};
+        hasilPenilaianObj[tempLatihanAktif.key] = skorNilai;
+
+        const dataBaru = {
+            id_latihan: Date.now(),
+            nama_latihan: tempLatihanAktif.nama_latihan,
+            id_materi_latihan: tempLatihanAktif.id_materi_latihan,
+            tangal_melakukan: new Date().toISOString(),
+            id_siswa: loggedInUser.id_siswa,
+            raw_input: rawInputObj,
+            hasil_penilaian: hasilPenilaianObj
+        };
+
+        closeModal('modalInputNilaiLatihan');
+
+        const result = await api.post('latihan', dataBaru);
+        if (result && result.error) {
+            showModal('Error', 'Gagal menyimpan data latihan: ' + result.error);
+            return;
+        }
+
+        lock("btnNext", false);
+        showModal('Berhasil Disimpan', `Data latihan "${tempLatihanAktif.nama_latihan}" berhasil dicatat!\n\nCapaian: ${rawNum} ${tempLatihanAktif.satuan}\nSkor Kebugaran: ${skorNilai} / 5`);
+        tempLatihanAktif = null;
     }
 
     function toggleTutorialAccordion(button) {
@@ -3348,17 +3557,17 @@ li {
 
         // --- BLOK KALKULASI SKOR TKJI ---
         if(gender === 'Putra') {
-            if(vLari60 > 0 && vLari60 <= 7.2) skorLari60 = 5; else if(vLari60 > 0 && vLari60 <= 8.3) skorLari60 = 4; else if(vLari60 > 0 && vLari60 <= 9.6) skorLari60 = 3; else if(vLari60 > 0 && vLari60 <= 11.0) skorLari60 = 2; else if(vLari60 > 0) skorLari60 = 1;
+            if(vLari60 > 0 && vLari60 <= 7.2) skorLari60 = 5; else if(vLari60 > 7.2 && vLari60 <= 8.3) skorLari60 = 4; else if(vLari60 > 8.3 && vLari60 <= 9.6) skorLari60 = 3; else if(vLari60 > 9.6 && vLari60 <= 11.0) skorLari60 = 2; else if(vLari60 > 11.0) skorLari60 = 1;
             if(vGantung >= 19) skorGantung = 5; else if(vGantung >= 14) skorGantung = 4; else if(vGantung >= 9) skorGantung = 3; else if(vGantung >= 5) skorGantung = 2; else if(vGantung > 0) skorGantung = 1;
             if(vBaring >= 41) skorBaring = 5; else if(vBaring >= 30) skorBaring = 4; else if(vBaring >= 21) skorBaring = 3; else if(vBaring >= 10) skorBaring = 2; else if(vBaring > 0) skorBaring = 1;
             if(vLompat >= 73) skorLompat = 5; else if(vLompat >= 60) skorLompat = 4; else if(vLompat >= 50) skorLompat = 3; else if(vLompat >= 39) skorLompat = 2; else if(vLompat > 0) skorLompat = 1;
-            if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 194) skorLariJauh = 5; else if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 265) skorLariJauh = 4; else if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 312) skorLariJauh = 3; else if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 393) skorLariJauh = 2; else if(totalDetikLariJauh > 0) skorLariJauh = 1;
+            if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 194) skorLariJauh = 5; else if(totalDetikLariJauh > 194 && totalDetikLariJauh <= 265) skorLariJauh = 4; else if(totalDetikLariJauh > 265 && totalDetikLariJauh <= 312) skorLariJauh = 3; else if(totalDetikLariJauh > 312 && totalDetikLariJauh <= 393) skorLariJauh = 2; else if(totalDetikLariJauh > 393) skorLariJauh = 1;
         } else {
-            if(vLari60 > 0 && vLari60 <= 8.4) skorLari60 = 5; else if(vLari60 > 0 && vLari60 <= 9.8) skorLari60 = 4; else if(vLari60 > 0 && vLari60 <= 11.4) skorLari60 = 3; else if(vLari60 > 0 && vLari60 <= 13.4) skorLari60 = 2; else if(vLari60 > 0) skorLari60 = 1;
+            if(vLari60 > 0 && vLari60 <= 8.4) skorLari60 = 5; else if(vLari60 > 8.4 && vLari60 <= 9.8) skorLari60 = 4; else if(vLari60 > 9.8 && vLari60 <= 11.4) skorLari60 = 3; else if(vLari60 > 11.4 && vLari60 <= 13.4) skorLari60 = 2; else if(vLari60 > 13.4) skorLari60 = 1;
             if(vGantung >= 41) skorGantung = 5; else if(vGantung >= 22) skorGantung = 4; else if(vGantung >= 10) skorGantung = 3; else if(vGantung >= 3) skorGantung = 2; else if(vGantung > 0) skorGantung = 1;
             if(vBaring >= 28) skorBaring = 5; else if(vBaring >= 20) skorBaring = 4; else if(vBaring >= 10) skorBaring = 3; else if(vBaring >= 3) skorBaring = 2; else if(vBaring > 0) skorBaring = 1;
             if(vLompat >= 50) skorLompat = 5; else if(vLompat >= 39) skorLompat = 4; else if(vLompat >= 31) skorLompat = 3; else if(vLompat >= 23) skorLompat = 2; else if(vLompat > 0) skorLompat = 1;
-            if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 232) skorLariJauh = 5; else if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 296) skorLariJauh = 4; else if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 358) skorLariJauh = 3; else if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 443) skorLariJauh = 2; else if(totalDetikLariJauh > 0) skorLariJauh = 1;
+            if(totalDetikLariJauh > 0 && totalDetikLariJauh <= 232) skorLariJauh = 5; else if(totalDetikLariJauh > 232 && totalDetikLariJauh <= 296) skorLariJauh = 4; else if(totalDetikLariJauh > 296 && totalDetikLariJauh <= 358) skorLariJauh = 3; else if(totalDetikLariJauh > 358 && totalDetikLariJauh <= 443) skorLariJauh = 2; else if(totalDetikLariJauh > 443) skorLariJauh = 1;
         }
 
         const totalNilai = skorLari60 + skorGantung + skorBaring + skorLompat + skorLariJauh; 
@@ -3469,13 +3678,44 @@ li {
             } else {
                 const d = new Date(r.tangal_melakukan);
                 const tanggalText = !isNaN(d) ? d.toLocaleString('id-ID').split(',')[0] : '-';
+
+                let skorDisplay = "-";
+                let detailRaw = "";
+
+                if (r.hasil_penilaian) {
+                    let hp = typeof r.hasil_penilaian === 'string' ? JSON.parse(r.hasil_penilaian) : r.hasil_penilaian;
+                    if (hp && typeof hp === 'object') {
+                        const skorVal = Object.values(hp)[0];
+                        if (skorVal !== undefined) {
+                            skorDisplay = `${skorVal} / 5`;
+                        }
+                    }
+                }
+
+                if (r.raw_input) {
+                    let ri = typeof r.raw_input === 'string' ? JSON.parse(r.raw_input) : r.raw_input;
+                    if (ri && typeof ri === 'object') {
+                        const k = Object.keys(ri)[0];
+                        const v = ri[k];
+                        let unit = '';
+                        if (k === 'lari60') unit = 'detik';
+                        else if (k === 'gantung') unit = (loggedInUser && loggedInUser.jenis_kelamin === 'Putri') ? 'detik' : 'kali';
+                        else if (k === 'baring') unit = 'kali';
+                        else if (k === 'lompat') unit = 'cm';
+
+                        if (v !== undefined) {
+                            detailRaw = `<br><span style="font-size: 11px; color: #757575; font-weight: bold;">(${v} ${unit})</span>`;
+                        }
+                    }
+                }
+
                 tbody.innerHTML += `
                 <tr>
                     <td style="text-align: center; font-weight: bold;">${index + 1}</td>
                     <td>${tanggalText}</td>
                     <td style="font-weight: 900; color: #9E9E9E;">-</td>
                     <td style="font-weight: bold; color: #0288D1;">Latihan - ${r.nama_latihan}</td>
-                    <td style="text-align: center; font-weight: 900; color: #9E9E9E; font-size: 15px;">-</td>
+                    <td style="text-align: center; font-weight: 900; color: #4CAF50; font-size: 15px;">${skorDisplay}${detailRaw}</td>
                     <td style="text-align: center;">
                         <button class="btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="hapusLatihan('${r.id_latihan}')">Hapus</button>
                     </td>
