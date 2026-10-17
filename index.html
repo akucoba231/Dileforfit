@@ -756,6 +756,11 @@ li {
     border-radius:  10px 10px 0px 0px;
 }
 
+.btn-panduan {
+    width: 50%;
+    margin-left: auto;
+}
+
 </style>
 </head>
 <body>
@@ -800,6 +805,79 @@ li {
                 </div>
                 <button onclick="simpanSesiAbsensiBaru()" style="margin-bottom: 10px; background: linear-gradient(180deg, #81C784, #4CAF50); border-color:#E8F5E9; box-shadow: 0 5px 0 #388E3C;">Buat Token ✔</button>
                 <p class="kembali" style="margin-top: 5px; color:#9E9E9E;" onclick="closeModal('modalBuatAbsensiGuru')">Batal</p>
+            </div>
+        </div>
+
+        <!-- MODAL DETAIL RIWAYAT LATIHAN SISWA (GURU) -->
+        <div id="modalRiwayatLatihanSiswa" class="modal-overlay">
+            <div class="modal-content" style="border-color: #4CAF50; max-width: 390px; width: 92%; max-height: 85vh; display: flex; flex-direction: column;">
+                <h3 style="color:#2E7D32; font-weight:900; margin: 0 0 5px 0;">Riwayat Latihan Siswa</h3>
+                <p id="modalRincianLatihanSubtitle" style="font-weight:700; color:#555; margin: 0 0 12px 0; font-size: 13px;">Data latihan fisik mandiri siswa</p>
+
+                <div class="content-box" style="padding: 10px; margin-bottom: 12px; background: #F1F8E9; border-color: #C8E6C9; text-align: left; font-size: 12px; line-height: 1.5;">
+                    <div id="modalRincianLatihanProfil">
+                        <div><strong>Nama:</strong> <span id="modalLatihanNamaSiswa">-</span></div>
+                        <div><strong>Kelas:</strong> <span id="modalLatihanKelasSiswa">-</span></div>
+                        <div><strong>Sekolah:</strong> <span id="modalLatihanSekolahSiswa">-</span></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-weight: 800; color: #2E7D32; font-size: 12px;">Daftar Riwayat Latihan</span>
+                    <button class="btn-success" onclick="exportRiwayatLatihanSiswaToExcel()" style="width: auto; padding: 4px 10px; font-size: 11px; margin: 0;">📥 Export Excel</button>
+                </div>
+
+                <div style="overflow-y: auto; flex: 1; margin-bottom: 12px; border: 1px solid #E0E0E0; border-radius: 8px;">
+                    <table style="width:100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+                        <thead>
+                            <tr style="background: #E8F5E9; color: #1B5E20;">
+                                <th style="text-align: center; padding: 6px;">No</th>
+                                <th style="padding: 6px;">Tanggal</th>
+                                <th style="padding: 6px;">Latihan</th>
+                                <th style="text-align: center; padding: 6px;">Capaian</th>
+                                <th style="text-align: center; padding: 6px;">Skor TKJI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyDetailLatihanSiswaGuru"></tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: auto;">
+                    <button class="btn-success" onclick="exportRiwayatLatihanSiswaToExcel()" style="flex: 1; padding: 8px 0; font-size: 13px; margin: 0;">📥 Export Excel</button>
+                    <button class="btn-warning" onclick="closeModal('modalRiwayatLatihanSiswa')" style="flex: 1; padding: 8px 0; font-size: 13px; margin: 0;">Tutup</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HALAMAN RIWAYAT LATIHAN SISWA (GURU) -->
+        <div id="page-riwayat-latihan-guru" class="page" data-title="🏃 Riwayat Latihan Siswa" data-parent="page-dashboard" style="text-align: left;">
+            <div class="top-bar">
+                <button class="btn-back-ios" onclick="nav('page-dashboard')">
+                    <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg> Kembali
+                </button>
+            </div>
+            <div class="breadcrumb-container"></div>
+            
+            <p style="font-weight: 700; font-size: 13px; color: #757575; margin-bottom: 15px;">Daftar siswa untuk memantau aktivitas dan riwayat latihan kebugaran jasmani.</p>
+            
+            <div class="content-box" style="padding: 15px 10px; overflow-x: auto; background: #FFFFFF; border-color: #C8E6C9;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <h3 style="margin:0; color: #2E7D32; font-weight: 900;">Daftar Profil Siswa</h3>
+                    <button class="btn-success" onclick="exportDataSiswaToExcel()" style="width: auto; padding: 8px 15px; font-size: 13px; margin:0;">📥 Export Excel</button>
+                </div>
+                
+                <table id="tabelSiswaLatihanGuru" class="display nowrap" style="width:100%; text-align: left;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">No</th>
+                            <th>Nama</th>
+                            <th>Kelas</th>
+                            <th>Email</th>
+                            <th style="text-align: center;">Riwayat Latihan</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
 
@@ -854,18 +932,25 @@ li {
                 </div>
             </div>
 
-            <div class="content-box" style="border-color: #81C784; padding: 15px 10px; overflow-x: auto;">
-                <table id="tabelRincianAbsensiSiswa" class="display nowrap" style="width:100%; text-align: left;">
-                    <thead>
-                        <tr>
-                            <th style="text-align: center;">No</th>
-                            <th>Nama Siswa</th>
-                            <th>Status</th>
-                            <th>Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+            <div class="content-box" style="border-color: #81C784;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin:0; color: #2E7D32; font-weight: 900;">Daftar Hadir Siswa</h3>
+                    <button class="btn-success" onclick="exportAbsensiToExcel()" style="width: auto; padding: 8px 15px; font-size: 13px; margin:0;">📥 Export Excel</button>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table id="tabelRincianAbsensiSiswa" class="display nowrap" style="width:100%; text-align: left;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">No</th>
+                                <th>Nama Siswa</th>
+                                <th>Status</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -976,9 +1061,10 @@ li {
             <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             <input type="text" id="loginUsername" placeholder="Username">
         </div>
-        <div class="input-group">
+        <div class="input-group password">
             <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
             <input type="password" id="loginPassword" placeholder="Password">
+            <button>👀</button>
         </div>
         <button id="btnProsesLogin" onclick="prosesLogin()" style="width: 80%; font-size: 18px; margin-top: 10px;">Masuk ➔</button>
         <p class="kembali" style="margin-top: 15px; cursor: pointer; text-decoration: underline;" onclick="nav('page-reset-password')">Lupa Password?</p>
@@ -1032,7 +1118,7 @@ li {
                 <option value="Putri">Perempuan (Putri)</option>
             </select>
             <label class="form-label">Email Siswa</label>
-            <input type="email" id="regSiswaEmail" placeholder="email@contoh.com">
+            <input required type="email" id="regSiswaEmail" placeholder="email@contoh.com">
             <hr style="border: 1px dashed #B3E5FC; margin: 15px 0;">
             <label class="form-label">Username</label>
             <input type="text" id="regSiswaUsername" placeholder="Untuk login">
@@ -1338,6 +1424,13 @@ li {
         </div>
         
         <div class="breadcrumb-container"></div> <p style="font-weight: 800; color: #9E9E9E; margin-top: 2px; margin-bottom: 10px;">Token Sesi: <span id="labelTokenAktif" style="color:#29B6F6;">-</span></p>
+
+        <div class="top-bar">
+            <button class="btn-panduan" onclick="panduanAsesmen();">
+                Panduan
+            </button>
+        </div>
+
         <div class="badge-kategori" id="labelKategoriAsesmenAktif">Kategori Asesmen: FISIK</div>
         
         <input type="hidden" id="hiddenIdAsesmen" value="">
@@ -1859,8 +1952,17 @@ li {
     let dtHasilSiswaGuruInstance = null; 
     let globalAsesmenIdAktif = null; 
 
-    
-    
+    function downloadExcelSafe(wb, fileName) {
+        if (window.Android && typeof window.Android.saveExcelBase64 === 'function') {
+            // Minta SheetJS untuk langsung menghasilkan output berupa Base64
+            const base64Data = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+            // Kirim Base64 ke Kotlin WebView
+            window.Android.saveExcelBase64(base64Data, fileName);
+        } else {
+            // Fallback jika web dibuka di browser PC/Laptop biasa
+            XLSX.writeFile(wb, fileName);
+        }
+    }
 
 // ==========================================
 // 2. LOGIKA BREADCRUMB DINAMIS (BARU)
@@ -1942,6 +2044,8 @@ li {
         if(targetId === 'page-tutorial-latihan') renderTutorialMenu();
         if(targetId === 'page-tutorial-detail') renderTutorialDetail();
         if(targetId === 'page-manajemen-absensi') renderTabelAbsensi(); // <-- TAMBAHAN absensi
+        if(targetId === 'page-asesmen-fisik') panduanAsesmen();
+        if(targetId === 'page-riwayat-latihan-guru') renderTabelSiswaLatihanGuru();
 
         renderBreadcrumb(targetId);
     }
@@ -2748,7 +2852,10 @@ li {
             </div>
             ${btnCapaian} 
             ${btnMateri}
-            <!-- TAMBAHKAN TOMBOL INI -->
+            <div class="card-materi card-asesmen" onclick="nav('page-riwayat-latihan-guru')">
+                <div class="icon-box">🏃</div>
+                <div class="text-box">Riwayat Latihan Siswa</div>
+            </div>
             <div class="card-materi card-asesmen" onclick="nav('page-manajemen-absensi')">
                 <div class="icon-box">📋</div>
                 <div class="text-box">Manajemen Absensi</div>
@@ -3152,7 +3259,7 @@ li {
         const fileName = `Hasil-Asesmen_${namaToken}_${namaSekolah.replace(/[^a-zA-Z0-9]/gi, '-')}_${ddmmyyyy}.xlsx`;
 
         const aoa = [
-            [`Hasil Asesmen Siswa-siswi ${namaSekolah}`],
+            [`Hasil Asesmen Peserta Didik ${namaSekolah}`],
             [`token - ${namaToken}`],
             [`${namaGuru} - ${nipGuru}`],
             [],
@@ -3268,7 +3375,7 @@ li {
         const wb = XLSX.utils.book_new(); 
         XLSX.utils.book_append_sheet(wb, ws, "Hasil Ujian");
 
-        XLSX.writeFile(wb, fileName);
+        downloadExcelSafe(wb, fileName);
     }
 
     async function cekToken() {
@@ -3856,7 +3963,7 @@ li {
     else if(targetId === "page-input-token"){
       btnNext.textContent = "Riwayat Assesment";
     }
-    else if(targetId.includes('page-asesmen') || targetId.includes('page-manajemen-') || targetId === 'page-akun' || targetId === 'page-riwayat-absensi' || targetId === 'page-riwayat-asesmen' || targetId === 'page-rincian-evaluasi'){
+    else if(targetId.includes('page-asesmen') || targetId.includes('page-manajemen-') || targetId === 'page-akun' || targetId === 'page-riwayat-absensi' || targetId === 'page-riwayat-asesmen' || targetId === 'page-rincian-evaluasi' || targetId === 'page-riwayat-latihan-guru'){
       btnNext.style.visibility = "hidden";
     }
     /* else if(targetId === 'page-riwayat-asesmen'){
@@ -4137,6 +4244,98 @@ async function toggleStatusAbsensi() {
     if(tabelContainer) renderTabelAbsensi();
 }
 
+// 7. GURU: Export Data Absensi ke Excel
+async function exportAbsensiToExcel() {
+    if (!globalAbsenIdAktif) return;
+
+    const resAb = await api.get('kode_absensi', {id_kode_absen: globalAbsenIdAktif});
+    const absen = resAb[0];
+    if (!absen) return;
+
+    const listAbsenSiswa = await api.get('absensi_siswa', {token_absen: absen.token_absen});
+
+    if (listAbsenSiswa.length === 0) {
+        return showModal("Perhatian", "Belum ada data siswa untuk diekspor.");
+    }
+
+    const namaSekolah = loggedInUser.asal_sekolah || "Sekolah";
+    const namaToken = absen.token_absen;
+    const namaGuru = loggedInUser.nama_guru || "Nama Guru";
+    const nipGuru = loggedInUser.nip || "NIP";
+    
+    const today = new Date();
+    const ddmmyyyy = String(today.getDate()).padStart(2, '0') + String(today.getMonth() + 1).padStart(2, '0') + today.getFullYear();
+    const fileName = `Data-Absensi_${namaToken}_${namaSekolah.replace(/[^a-zA-Z0-9]/gi, '-')}_${ddmmyyyy}.xlsx`;
+
+    const aoa = [
+        [`Data Presensi Kehadiran Peserta Didik ${namaSekolah}`],
+        [`token - ${namaToken}`],
+        [`${namaGuru} - ${nipGuru}`],
+        [],
+        [
+            "No", "Nama Siswa", "Kelas", "No. Absen", 
+            "Jenis Kelamin", "Status Kehadiran", "Keterangan", "Tanggal Absen"
+        ]
+    ];
+
+    for (let index = 0; index < listAbsenSiswa.length; index++) {
+        let rec = listAbsenSiswa[index];
+        const resS = await api.get('siswa', {id_siswa: rec.id_siswa}); 
+        const dataSiswa = resS[0];
+        const namaLengkap = dataSiswa ? dataSiswa.nama_siswa : "Siswa Tidak Dikenal";
+        const kelas = dataSiswa ? (dataSiswa.kelas || "-") : "-";
+        const noAbsen = dataSiswa ? (dataSiswa.absen || "-") : "-";
+        const jk = dataSiswa ? (dataSiswa.jenis_kelamin || "-") : "-";
+        const status = rec.status || "-";
+        const keterangan = rec.keterangan || "-";
+        const tanggal = rec.tanggal_absen || absen.tanggal_absen || "-";
+
+        aoa.push([
+            index + 1,
+            namaLengkap,
+            kelas,
+            noAbsen,
+            jk,
+            status,
+            keterangan,
+            tanggal
+        ]);
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa); 
+
+    ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
+        { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }
+    ];
+
+    ws['!cols'] = [
+        { wch: 6 },  // No
+        { wch: 28 }, // Nama Siswa
+        { wch: 14 }, // Kelas
+        { wch: 12 }, // No. Absen
+        { wch: 16 }, // Jenis Kelamin
+        { wch: 18 }, // Status Kehadiran
+        { wch: 25 }, // Keterangan
+        { wch: 16 }  // Tanggal Absen
+    ];
+
+    if(!ws["A1"]) ws["A1"] = { t: 's', v: aoa[0][0] };
+    ws["A1"].s = { alignment: { horizontal: "center" }, font: { bold: true } };
+    
+    if(!ws["A2"]) ws["A2"] = { t: 's', v: aoa[1][0] };
+    ws["A2"].s = { alignment: { horizontal: "center" } };
+
+    if(!ws["A3"]) ws["A3"] = { t: 's', v: aoa[2][0] };
+    ws["A3"].s = { alignment: { horizontal: "left" } };
+
+    const wb = XLSX.utils.book_new(); 
+    XLSX.utils.book_append_sheet(wb, ws, "Data Absensi");
+
+    downloadExcelSafe(wb, fileName);
+}
+
 // 9. LOGIKA RIWAYAT absensi
 // ==========================================
     async function bukaRiwayatAbsensiSiswa() {
@@ -4184,6 +4383,356 @@ function bukaModalAbsen(){
                 document.getElementById('inputKeteranganAbsenSiswa').value = '';
                 document.getElementById('boxKeteranganAbsen').style.display = 'none';
                 document.getElementById('modalAbsensiSiswa').style.display = 'flex';
+}
+
+function panduanAsesmen(){
+    showModal("Petunjuk","Lakukan gerakan olah raga sesuai daftar asesmen berikut. \n Tuliskan hasilnya pada kolom yang disediakan sesuai contoh. \n \n Tekan tombol 'Simpan Sementara' jika asesmen belum selesai di sesi pertemuan sekarang. \n Tekan tombol 'Kirim Asesmen' untuk mengirim hasil asesmen ke guru jika semua daftar asesmen telah dilaksanakan. \n \n PERINGATAN : data asesmen setelah dikirim tidak bisa diubah kembali, periksa setiap kolom yang telah diisi sebelum dikirim.");
+}
+
+// ==========================================
+// 11. GURU: RIWAYAT LATIHAN SISWA
+// ==========================================
+let dtSiswaLatihanGuruInstance = null;
+let currentListSiswaGuru = [];
+let currentDetailSiswaAktif = null;
+let currentDetailLatihanAktif = [];
+
+async function renderTabelSiswaLatihanGuru() {
+    if ($.fn.DataTable.isDataTable('#tabelSiswaLatihanGuru')) { 
+        $('#tabelSiswaLatihanGuru').DataTable().destroy(); 
+    }
+    const tbody = document.querySelector('#tabelSiswaLatihanGuru tbody'); 
+    tbody.innerHTML = '';
+
+    let listSiswa = [];
+    if (loggedInUser && loggedInUser.asal_sekolah) {
+        listSiswa = await api.get('siswa', { asal_sekolah: loggedInUser.asal_sekolah });
+    }
+    if (!Array.isArray(listSiswa) || listSiswa.length === 0) {
+        listSiswa = await api.get('siswa');
+    }
+    if (!Array.isArray(listSiswa)) listSiswa = [];
+    currentListSiswaGuru = listSiswa;
+
+    listSiswa.forEach((s, index) => {
+        tbody.innerHTML += `
+        <tr>
+            <td style="text-align: center; font-weight: bold;">${index + 1}</td>
+            <td style="font-weight: 800; color: #1B5E20;">${s.nama_siswa || '-'}</td>
+            <td>${s.kelas || '-'}</td>
+            <td>${s.email || '-'}</td>
+            <td style="text-align: center;">
+                <button class="btn-info" onclick="bukaModalRiwayatLatihanSiswa('${s.id_siswa}')" style="padding: 5px 12px; font-size: 12px; border-radius: 6px;">Lihat</button>
+            </td>
+        </tr>
+        `;
+    });
+
+    dtSiswaLatihanGuruInstance = $('#tabelSiswaLatihanGuru').DataTable({ 
+        "pageLength": 10, "lengthChange": false, "scrollX": true, 
+        "language": { 
+            "search": "Cari:", "info": "Hal _PAGE_ dari _PAGES_", 
+            "infoEmpty": "Kosong", "zeroRecords": "Tidak ada data siswa", 
+            "paginate": { "next": "▶", "previous": "◀" } 
+        } 
+    });
+}
+
+async function bukaModalRiwayatLatihanSiswa(id_siswa) {
+    let student = currentListSiswaGuru.find(s => String(s.id_siswa) === String(id_siswa));
+    if (!student) {
+        const resS = await api.get('siswa', { id_siswa: id_siswa });
+        if (Array.isArray(resS) && resS.length > 0) student = resS[0];
+    }
+    
+    currentDetailSiswaAktif = student;
+    currentDetailLatihanAktif = [];
+
+    const namaSiswa = student ? student.nama_siswa : "Siswa";
+    const kelasSiswa = student ? (student.kelas || "-") : "-";
+    const sekolahSiswa = student ? (student.asal_sekolah || "-") : "-";
+
+    document.getElementById('modalLatihanNamaSiswa').innerText = namaSiswa;
+    document.getElementById('modalLatihanKelasSiswa').innerText = kelasSiswa;
+    document.getElementById('modalLatihanSekolahSiswa').innerText = sekolahSiswa;
+    document.getElementById('modalRincianLatihanSubtitle').innerText = `Data riwayat latihan mandiri peserta didik`;
+
+    const tbody = document.getElementById('tbodyDetailLatihanSiswaGuru');
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px; color: #757575;">Memuat riwayat latihan...</td></tr>`;
+    document.getElementById('modalRiwayatLatihanSiswa').style.display = 'flex';
+
+    const listLatihan = await api.get('latihan', { id_siswa: id_siswa });
+    tbody.innerHTML = '';
+
+    if (!Array.isArray(listLatihan) || listLatihan.length === 0) {
+        currentDetailLatihanAktif = [];
+        tbody.innerHTML = `
+        <tr>
+            <td colspan="5" style="text-align: center; color: #9E9E9E; padding: 20px; font-style: italic;">
+                Belum ada riwayat latihan yang tercatat.
+            </td>
+        </tr>`;
+        return;
+    }
+
+    const sorted = [...listLatihan].sort((a, b) => new Date(b.tangal_melakukan || b.id_latihan) - new Date(a.tangal_melakukan || a.id_latihan));
+    currentDetailLatihanAktif = sorted;
+
+    sorted.forEach((t, idx) => {
+        let tglStr = '-';
+        if (t.tangal_melakukan) {
+            try {
+                const dt = new Date(t.tangal_melakukan);
+                tglStr = dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' + dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            } catch(e) {
+                tglStr = t.tangal_melakukan;
+            }
+        }
+
+        let rawValStr = '-';
+        let rawObj = t.raw_input;
+        if (typeof rawObj === 'string') {
+            try { rawObj = JSON.parse(rawObj); } catch(e) {}
+        }
+        if (rawObj && typeof rawObj === 'object') {
+            const keys = Object.keys(rawObj);
+            if (keys.length > 0) {
+                const k = keys[0];
+                let unit = '';
+                if (k === 'lari60') unit = 'detik';
+                else if (k === 'gantung') unit = (student && student.jenis_kelamin && student.jenis_kelamin.toLowerCase() === 'putri') ? 'detik' : 'kali';
+                else if (k === 'baring') unit = 'kali';
+                else if (k === 'lompat') unit = 'cm';
+                rawValStr = `${rawObj[k]} ${unit}`.trim();
+            }
+        }
+
+        let skorStr = '-';
+        let hasilObj = t.hasil_penilaian;
+        if (typeof hasilObj === 'string') {
+            try { hasilObj = JSON.parse(hasilObj); } catch(e) {}
+        }
+        if (hasilObj && typeof hasilObj === 'object') {
+            const keys = Object.keys(hasilObj);
+            if (keys.length > 0) {
+                skorStr = hasilObj[keys[0]];
+            }
+        }
+
+        tbody.innerHTML += `
+        <tr style="border-bottom: 1px solid #EEEEEE;">
+            <td style="text-align: center; font-weight: bold; padding: 6px;">${idx + 1}</td>
+            <td style="padding: 6px; font-size: 11px; color: #616161;">${tglStr}</td>
+            <td style="font-weight: bold; color: #1B5E20; padding: 6px;">${t.nama_latihan || '-'}</td>
+            <td style="text-align: center; font-weight: bold; color: #424242; padding: 6px;">${rawValStr}</td>
+            <td style="text-align: center; padding: 6px;">
+                <span style="background: #E8F5E9; color: #2E7D32; font-weight: 900; padding: 2px 7px; border-radius: 6px; font-size: 12px; border: 1px solid #C8E6C9;">${skorStr}</span>
+            </td>
+        </tr>
+        `;
+    });
+}
+
+async function exportRiwayatLatihanSiswaToExcel() {
+    if (!currentDetailSiswaAktif) {
+        return showModal("Perhatian", "Data siswa tidak ditemukan.");
+    }
+
+    if (!currentDetailLatihanAktif || currentDetailLatihanAktif.length === 0) {
+        return showModal("Perhatian", "Belum ada riwayat latihan untuk diekspor pada siswa ini.");
+    }
+
+    const student = currentDetailSiswaAktif;
+    const namaSiswa = student.nama_siswa || "Siswa";
+    const kelasSiswa = student.kelas || "-";
+    const noAbsen = student.absen || "-";
+    const jkSiswa = student.jenis_kelamin || "-";
+    const namaSekolah = student.asal_sekolah || (loggedInUser && loggedInUser.asal_sekolah) || "Sekolah";
+    const namaGuru = (loggedInUser && loggedInUser.nama_guru) ? loggedInUser.nama_guru : "Guru";
+    const nipGuru = (loggedInUser && loggedInUser.nip) ? loggedInUser.nip : "-";
+
+    const today = new Date();
+    const ddmmyyyy = String(today.getDate()).padStart(2, '0') + String(today.getMonth() + 1).padStart(2, '0') + today.getFullYear();
+    const fileName = `Riwayat-Latihan_${namaSiswa.replace(/[^a-zA-Z0-9]/gi, '_')}_${ddmmyyyy}.xlsx`;
+
+    const aoa = [
+        [`Riwayat Latihan Siswa - ${namaSekolah}`],
+        [`Nama: ${namaSiswa} | Kelas: ${kelasSiswa} | No. Absen: ${noAbsen} | JK: ${jkSiswa}`],
+        [`Guru Pengampu: ${namaGuru} - ${nipGuru}`],
+        [],
+        [
+            "No",
+            "Tanggal & Waktu",
+            "Nama Latihan",
+            "Capaian (Input)",
+            "Skor TKJI"
+        ]
+    ];
+
+    currentDetailLatihanAktif.forEach((t, idx) => {
+        let tglStr = '-';
+        if (t.tangal_melakukan) {
+            try {
+                const dt = new Date(t.tangal_melakukan);
+                tglStr = dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            } catch(e) {
+                tglStr = t.tangal_melakukan;
+            }
+        }
+
+        let rawValStr = '-';
+        let rawObj = t.raw_input;
+        if (typeof rawObj === 'string') {
+            try { rawObj = JSON.parse(rawObj); } catch(e) {}
+        }
+        if (rawObj && typeof rawObj === 'object') {
+            const keys = Object.keys(rawObj);
+            if (keys.length > 0) {
+                const k = keys[0];
+                let unit = '';
+                if (k === 'lari60') unit = 'detik';
+                else if (k === 'gantung') unit = (student && student.jenis_kelamin && student.jenis_kelamin.toLowerCase() === 'putri') ? 'detik' : 'kali';
+                else if (k === 'baring') unit = 'kali';
+                else if (k === 'lompat') unit = 'cm';
+                rawValStr = `${rawObj[k]} ${unit}`.trim();
+            }
+        }
+
+        let skorStr = '-';
+        let hasilObj = t.hasil_penilaian;
+        if (typeof hasilObj === 'string') {
+            try { hasilObj = JSON.parse(hasilObj); } catch(e) {}
+        }
+        if (hasilObj && typeof hasilObj === 'object') {
+            const keys = Object.keys(hasilObj);
+            if (keys.length > 0) {
+                skorStr = hasilObj[keys[0]];
+            }
+        }
+
+        aoa.push([
+            idx + 1,
+            tglStr,
+            t.nama_latihan || '-',
+            rawValStr,
+            skorStr
+        ]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } },
+        { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } }
+    ];
+
+    ws['!cols'] = [
+        { wch: 6 },  // No
+        { wch: 22 }, // Tanggal & Waktu
+        { wch: 25 }, // Nama Latihan
+        { wch: 20 }, // Capaian
+        { wch: 14 }  // Skor TKJI
+    ];
+
+    if(!ws["A1"]) ws["A1"] = { t: 's', v: aoa[0][0] };
+    ws["A1"].s = { alignment: { horizontal: "center" }, font: { bold: true } };
+    
+    if(!ws["A2"]) ws["A2"] = { t: 's', v: aoa[1][0] };
+    ws["A2"].s = { alignment: { horizontal: "center" } };
+
+    if(!ws["A3"]) ws["A3"] = { t: 's', v: aoa[2][0] };
+    ws["A3"].s = { alignment: { horizontal: "left" } };
+
+    const wb = XLSX.utils.book_new(); 
+    XLSX.utils.book_append_sheet(wb, ws, "Riwayat Latihan");
+
+    downloadExcelSafe(wb, fileName);
+}
+
+async function exportDataSiswaToExcel() {
+    if (!currentListSiswaGuru || currentListSiswaGuru.length === 0) {
+        return showModal("Perhatian", "Belum ada data siswa untuk diekspor.");
+    }
+
+    const namaSekolah = (loggedInUser && loggedInUser.asal_sekolah) ? loggedInUser.asal_sekolah : "Sekolah";
+    const namaGuru = (loggedInUser && loggedInUser.nama_guru) ? loggedInUser.nama_guru : "Guru";
+    const nipGuru = (loggedInUser && loggedInUser.nip) ? loggedInUser.nip : "-";
+    
+    const today = new Date();
+    const ddmmyyyy = String(today.getDate()).padStart(2, '0') + String(today.getMonth() + 1).padStart(2, '0') + today.getFullYear();
+    const fileName = `Data-Siswa-Latihan_${namaSekolah.replace(/[^a-zA-Z0-9]/gi, '-')}_${ddmmyyyy}.xlsx`;
+
+    const aoa = [
+        [`Daftar Siswa dan Riwayat Latihan - ${namaSekolah}`],
+        [`Data Profil Siswa & Total Latihan`],
+        [`${namaGuru} - ${nipGuru}`],
+        [],
+        [
+            "No",
+            "Nama Siswa",
+            "Kelas",
+            "No. Absen",
+            "Jenis Kelamin",
+            "Email",
+            "Total Latihan Selesai"
+        ]
+    ];
+
+    for (let index = 0; index < currentListSiswaGuru.length; index++) {
+        const s = currentListSiswaGuru[index];
+        let totalLatihan = 0;
+        try {
+            const latihanList = await api.get('latihan', { id_siswa: s.id_siswa });
+            if (Array.isArray(latihanList)) {
+                totalLatihan = latihanList.length;
+            }
+        } catch(e) {
+            console.error(e);
+        }
+
+        aoa.push([
+            index + 1,
+            s.nama_siswa || "-",
+            s.kelas || "-",
+            s.absen || "-",
+            s.jenis_kelamin || "-",
+            s.email || "-",
+            totalLatihan
+        ]);
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } },
+        { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }
+    ];
+
+    ws['!cols'] = [
+        { wch: 6 },  // No
+        { wch: 28 }, // Nama Siswa
+        { wch: 14 }, // Kelas
+        { wch: 12 }, // No. Absen
+        { wch: 16 }, // Jenis Kelamin
+        { wch: 28 }, // Email
+        { wch: 22 }  // Total Latihan Selesai
+    ];
+
+    if(!ws["A1"]) ws["A1"] = { t: 's', v: aoa[0][0] };
+    ws["A1"].s = { alignment: { horizontal: "center" }, font: { bold: true } };
+    
+    if(!ws["A2"]) ws["A2"] = { t: 's', v: aoa[1][0] };
+    ws["A2"].s = { alignment: { horizontal: "center" } };
+
+    if(!ws["A3"]) ws["A3"] = { t: 's', v: aoa[2][0] };
+    ws["A3"].s = { alignment: { horizontal: "left" } };
+
+    const wb = XLSX.utils.book_new(); 
+    XLSX.utils.book_append_sheet(wb, ws, "Data Siswa & Latihan");
+
+    downloadExcelSafe(wb, fileName);
 }
 
 // 10. INISIALISASI AUTO-FILL LOGIN
