@@ -23,7 +23,16 @@ body {
     user-select: none; width: 100%; max-width: 420px; min-height: 100vh; max-height: 760px; 
     overflow-x: hidden; overflow-y: scroll; position: relative; background-color: #F8FDFF; 
     background: url('assets/bg_lapangan_sederhana_v2.jpg') no-repeat center center; background-size: 100% 100%; transition: all 0.5s; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 }
+
+#app-container > * {
+    width: 100%;
+}
+
 @media (min-width: 421px) { 
     #app-container { min-height: 850px; border-radius: 40px; border: 10px solid #1A237E; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin: 20px 0;} 
 }
@@ -761,6 +770,28 @@ li {
     margin-left: auto;
 }
 
+.password {
+    position: relative;
+}
+
+.lihat-password {
+  position: absolute;
+  right: 0;
+  width: 25%;
+  background: rgba(190,190,190,.8);
+  color: #000;
+  box-shadow: none;
+  white-space: break-spaces;
+  text-align: center;
+  font-size: 0.7em;
+  padding: 0;
+  height: 100%;
+}
+
+.lihat-password:active {
+    box-shadow: inset 2px 3px 5px #222;
+}
+
 </style>
 </head>
 <body>
@@ -966,6 +997,7 @@ li {
             <div class="modal-content">
                 <h3 style="color:#0288D1; font-weight:900;" class="dynamic-text">Daftar Sebagai</h3>
                 <p style="font-weight:700; color:#4A4A4A; margin-bottom: 20px; font-size: 14px;">Pilih peran Anda untuk membuat akun baru.</p>
+                <button onclick="panduanRegistrasi()" style="margin-bottom: 20  px; width: 100%;" class="btn-warning">Panduan Regsitrasi</button>
                 <button onclick="bukaFormDaftar('guru')" style="margin-bottom: 10px; background: linear-gradient(180deg, #81C784, #4CAF50); box-shadow: 0 5px 0 #388E3C; border-color:#E8F5E9;">Guru / Pendidik</button>
                 <button onclick="bukaFormDaftar('siswa')" style="margin-bottom: 20px; background: linear-gradient(180deg, #81D4FA 0%, #29B6F6 100%); box-shadow: 0 5px 0 #0288D1;">Siswa / Peserta Didik</button>
                 <p class="kembali" style="margin-top: 0;" onclick="closeModal('modalPilihDaftar')">Batal</p>
@@ -1064,7 +1096,7 @@ li {
         <div class="input-group password">
             <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
             <input type="password" id="loginPassword" placeholder="Password">
-            <button>👀</button>
+            <button class="lihat-password" onclick="lihatPassword()">Lihat Password</button>
         </div>
         <button id="btnProsesLogin" onclick="prosesLogin()" style="width: 80%; font-size: 18px; margin-top: 10px;">Masuk ➔</button>
         <p class="kembali" style="margin-top: 15px; cursor: pointer; text-decoration: underline;" onclick="nav('page-reset-password')">Lupa Password?</p>
@@ -1162,7 +1194,7 @@ li {
         <div class="list-materi" id="gridDashboardContainer">
         </div>
         
-        <button onclick="renderHalamanAkun(); nav('page-akun')" style="margin-top: 20px; width: 100%; background: #334155; color: white; box-shadow: 0 5px 0 #1e293b;">Pengaturan Akun 👤</button>
+        <button onclick="renderHalamanAkun(); nav('page-akun')" style="margin-top: 20px; width: 100%; background: #334155; color: white; box-shadow: 0 5px 0 #1e293b;">Pengaturan Akun ⚙️</button>
     </div>
 
     <div id="page-akun" class="page" data-title="👤 Pengaturan Akun" data-parent="page-dashboard">
@@ -4389,6 +4421,20 @@ function panduanAsesmen(){
     showModal("Petunjuk","Lakukan gerakan olah raga sesuai daftar asesmen berikut. \n Tuliskan hasilnya pada kolom yang disediakan sesuai contoh. \n \n Tekan tombol 'Simpan Sementara' jika asesmen belum selesai di sesi pertemuan sekarang. \n Tekan tombol 'Kirim Asesmen' untuk mengirim hasil asesmen ke guru jika semua daftar asesmen telah dilaksanakan. \n \n PERINGATAN : data asesmen setelah dikirim tidak bisa diubah kembali, periksa setiap kolom yang telah diisi sebelum dikirim.");
 }
 
+function panduanRegistrasi(){
+    showModal("Petunjuk","Pilih jenis akun yang akan didaftarkan, apakah akun 'Guru' atau akun 'Siswa'. \n \n Kemudian formulir pendaftaran akan ditampilkan, isi formulir sesuai data diri. \n \n Pada bagian email, isi dengan email yang masih aktif karena akan digunakan untuk mengirim kode atur ulang sandi, jika lupa kata sandi (OTP). \n\n Periksa kembali formulir, lalu tekan 'Daftar Sekarang'. \n \n Tunggu proses pendaftaran selesai, lalu masuk ke aplikasi menggunakan akun yang sudah terdaftar sesuai jenis akun ('Guru' atau 'Siswa').");
+}
+
+let togglePassword = 0;
+function lihatPassword(){
+    let ps = document.getElementById('loginPassword');
+    let nilaiPs = ["password","text"];
+    togglePassword++;
+    let hasilPs = togglePassword % 2;
+    ps.type = nilaiPs[hasilPs];
+
+}
+
 // ==========================================
 // 11. GURU: RIWAYAT LATIHAN SISWA
 // ==========================================
@@ -4734,6 +4780,8 @@ async function exportDataSiswaToExcel() {
 
     downloadExcelSafe(wb, fileName);
 }
+
+
 
 // 10. INISIALISASI AUTO-FILL LOGIN
 document.addEventListener('DOMContentLoaded', () => {
