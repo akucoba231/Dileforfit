@@ -1194,7 +1194,25 @@ li {
         <div class="list-materi" id="gridDashboardContainer">
         </div>
         
-        <button onclick="renderHalamanAkun(); nav('page-akun')" style="margin-top: 20px; width: 100%; background: #334155; color: white; box-shadow: 0 5px 0 #1e293b;">Pengaturan Akun ⚙️</button>
+        <button onclick="nav('page-panduan')" class="btn-panduan-apps" style="margin-top: 20px; width: 100%;">Panduan Aplikasi 📖</button>
+        <button onclick="renderHalamanAkun(); nav('page-akun')" style="margin-top: 12px; width: 100%; background: #334155; color: white; box-shadow: 0 5px 0 #1e293b;">Pengaturan Akun ⚙️</button>
+    </div>
+
+    <!-- HALAMAN PANDUAN APLIKASI (SISWA & GURU) -->
+    <div id="page-panduan" class="page" data-title="📖 Panduan Aplikasi" data-parent="page-dashboard" style="text-align: left;">
+        <div class="top-bar">
+            <button class="btn-back-ios" onclick="nav('page-dashboard')">
+                <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg> Kembali
+            </button>
+        </div>
+        <div class="breadcrumb-container"></div>
+        
+        <div class="role-switcher" style="margin-bottom: 20px;">
+            <div id="tabPanduanSiswa" class="role-btn active-siswa" onclick="gantiTabPanduan('siswa')">👨‍🎓 Panduan Siswa</div>
+            <div id="tabPanduanGuru" class="role-btn" onclick="gantiTabPanduan('guru')">👨‍🏫 Panduan Guru</div>
+        </div>
+
+        <div id="kontenPanduanContainer"></div>
     </div>
 
     <div id="page-akun" class="page" data-title="👤 Pengaturan Akun" data-parent="page-dashboard">
@@ -2078,6 +2096,7 @@ li {
         if(targetId === 'page-manajemen-absensi') renderTabelAbsensi(); // <-- TAMBAHAN absensi
         if(targetId === 'page-asesmen-fisik') panduanAsesmen();
         if(targetId === 'page-riwayat-latihan-guru') renderTabelSiswaLatihanGuru();
+        if(targetId === 'page-panduan') renderHalamanPanduan();
 
         renderBreadcrumb(targetId);
     }
@@ -3995,7 +4014,7 @@ li {
     else if(targetId === "page-input-token"){
       btnNext.textContent = "Riwayat Assesment";
     }
-    else if(targetId.includes('page-asesmen') || targetId.includes('page-manajemen-') || targetId === 'page-akun' || targetId === 'page-riwayat-absensi' || targetId === 'page-riwayat-asesmen' || targetId === 'page-rincian-evaluasi' || targetId === 'page-riwayat-latihan-guru'){
+    else if(targetId.includes('page-asesmen') || targetId.includes('page-manajemen-') || targetId === 'page-akun' || targetId === 'page-riwayat-absensi' || targetId === 'page-riwayat-asesmen' || targetId === 'page-rincian-evaluasi' || targetId === 'page-riwayat-latihan-guru' || targetId === 'page-panduan'){
       btnNext.style.visibility = "hidden";
     }
     /* else if(targetId === 'page-riwayat-asesmen'){
@@ -4701,87 +4720,347 @@ async function exportDataSiswaToExcel() {
         return showModal("Perhatian", "Belum ada data siswa untuk diekspor.");
     }
 
-    const namaSekolah = (loggedInUser && loggedInUser.asal_sekolah) ? loggedInUser.asal_sekolah : "Sekolah";
-    const namaGuru = (loggedInUser && loggedInUser.nama_guru) ? loggedInUser.nama_guru : "Guru";
-    const nipGuru = (loggedInUser && loggedInUser.nip) ? loggedInUser.nip : "-";
-    
-    const today = new Date();
-    const ddmmyyyy = String(today.getDate()).padStart(2, '0') + String(today.getMonth() + 1).padStart(2, '0') + today.getFullYear();
-    const fileName = `Data-Siswa-Latihan_${namaSekolah.replace(/[^a-zA-Z0-9]/gi, '-')}_${ddmmyyyy}.xlsx`;
+    try {
+        const namaSekolah = (loggedInUser && loggedInUser.asal_sekolah) ? loggedInUser.asal_sekolah : "Sekolah";
+        const namaGuru = (loggedInUser && loggedInUser.nama_guru) ? loggedInUser.nama_guru : "Guru";
+        const nipGuru = (loggedInUser && loggedInUser.nip) ? loggedInUser.nip : "-";
+        
+        const today = new Date();
+        const ddmmyyyy = String(today.getDate()).padStart(2, '0') + String(today.getMonth() + 1).padStart(2, '0') + today.getFullYear();
+        const fileName = `Data-Siswa-Latihan_${namaSekolah.replace(/[^a-zA-Z0-9]/gi, '-')}_${ddmmyyyy}.xlsx`;
 
-    const aoa = [
-        [`Daftar Siswa dan Riwayat Latihan - ${namaSekolah}`],
-        [`Data Profil Siswa & Total Latihan`],
-        [`${namaGuru} - ${nipGuru}`],
-        [],
-        [
-            "No",
-            "Nama Siswa",
-            "Kelas",
-            "No. Absen",
-            "Jenis Kelamin",
-            "Email",
-            "Total Latihan Selesai"
-        ]
-    ];
+        const aoa = [
+            [`Daftar Siswa dan Riwayat Latihan - ${namaSekolah}`],
+            [`Data Profil Siswa & Total Latihan`],
+            [`${namaGuru} - ${nipGuru}`],
+            [],
+            [
+                "No",
+                "Nama Siswa",
+                "Kelas",
+                "No. Absen",
+                "Jenis Kelamin",
+                "Email",
+                "Total Latihan Selesai"
+            ]
+        ];
 
-    for (let index = 0; index < currentListSiswaGuru.length; index++) {
-        const s = currentListSiswaGuru[index];
-        let totalLatihan = 0;
+        // Ambil data latihan secara efisien (1 kali request massal)
+        const countMap = {};
         try {
-            const latihanList = await api.get('latihan', { id_siswa: s.id_siswa });
-            if (Array.isArray(latihanList)) {
-                totalLatihan = latihanList.length;
+            const allLatihan = await api.get('latihan');
+            if (Array.isArray(allLatihan)) {
+                allLatihan.forEach(l => {
+                    if (l && l.id_siswa) {
+                        countMap[String(l.id_siswa)] = (countMap[String(l.id_siswa)] || 0) + 1;
+                    }
+                });
             }
         } catch(e) {
-            console.error(e);
+            console.error("Gagal mengambil seluruh data latihan:", e);
         }
 
-        aoa.push([
-            index + 1,
-            s.nama_siswa || "-",
-            s.kelas || "-",
-            s.absen || "-",
-            s.jenis_kelamin || "-",
-            s.email || "-",
-            totalLatihan
-        ]);
+        for (let index = 0; index < currentListSiswaGuru.length; index++) {
+            const s = currentListSiswaGuru[index];
+            let totalLatihan = countMap[String(s.id_siswa)] !== undefined ? countMap[String(s.id_siswa)] : 0;
+
+            // Fallback jika request massal tidak menghasilkan data
+            if (Object.keys(countMap).length === 0) {
+                try {
+                    const latihanList = await api.get('latihan', { id_siswa: s.id_siswa });
+                    if (Array.isArray(latihanList)) {
+                        totalLatihan = latihanList.length;
+                    }
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+
+            aoa.push([
+                index + 1,
+                s.nama_siswa || "-",
+                s.kelas || "-",
+                s.absen || "-",
+                s.jenis_kelamin || "-",
+                s.email || "-",
+                totalLatihan
+            ]);
+        }
+
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+        ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+            { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } },
+            { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }
+        ];
+
+        ws['!cols'] = [
+            { wch: 6 },  // No
+            { wch: 28 }, // Nama Siswa
+            { wch: 14 }, // Kelas
+            { wch: 12 }, // No. Absen
+            { wch: 16 }, // Jenis Kelamin
+            { wch: 28 }, // Email
+            { wch: 22 }  // Total Latihan Selesai
+        ];
+
+        if(!ws["A1"]) ws["A1"] = { t: 's', v: aoa[0][0] };
+        ws["A1"].s = { alignment: { horizontal: "center" }, font: { bold: true } };
+        
+        if(!ws["A2"]) ws["A2"] = { t: 's', v: aoa[1][0] };
+        ws["A2"].s = { alignment: { horizontal: "center" } };
+
+        if(!ws["A3"]) ws["A3"] = { t: 's', v: aoa[2][0] };
+        ws["A3"].s = { alignment: { horizontal: "left" } };
+
+        const wb = XLSX.utils.book_new(); 
+        XLSX.utils.book_append_sheet(wb, ws, "Data Siswa & Latihan");
+
+        downloadExcelSafe(wb, fileName);
+    } catch(err) {
+        console.error("Gagal mengekspor data siswa:", err);
+        showModal("Error", "Terjadi kesalahan saat memproses ekspor Excel: " + err.message);
     }
+}
+// ==========================================
+// 12. PANDUAN PENGGUNAAN APLIKASI (SISWA & GURU)
+// ==========================================
+let currentTabPanduan = 'siswa';
 
-    const ws = XLSX.utils.aoa_to_sheet(aoa);
-
-    ws['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } },
-        { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }
-    ];
-
-    ws['!cols'] = [
-        { wch: 6 },  // No
-        { wch: 28 }, // Nama Siswa
-        { wch: 14 }, // Kelas
-        { wch: 12 }, // No. Absen
-        { wch: 16 }, // Jenis Kelamin
-        { wch: 28 }, // Email
-        { wch: 22 }  // Total Latihan Selesai
-    ];
-
-    if(!ws["A1"]) ws["A1"] = { t: 's', v: aoa[0][0] };
-    ws["A1"].s = { alignment: { horizontal: "center" }, font: { bold: true } };
-    
-    if(!ws["A2"]) ws["A2"] = { t: 's', v: aoa[1][0] };
-    ws["A2"].s = { alignment: { horizontal: "center" } };
-
-    if(!ws["A3"]) ws["A3"] = { t: 's', v: aoa[2][0] };
-    ws["A3"].s = { alignment: { horizontal: "left" } };
-
-    const wb = XLSX.utils.book_new(); 
-    XLSX.utils.book_append_sheet(wb, ws, "Data Siswa & Latihan");
-
-    downloadExcelSafe(wb, fileName);
+function gantiTabPanduan(role) {
+    currentTabPanduan = role;
+    const btnSiswa = document.getElementById('tabPanduanSiswa');
+    const btnGuru = document.getElementById('tabPanduanGuru');
+    if (btnSiswa && btnGuru) {
+        if (role === 'siswa') {
+            btnSiswa.className = "role-btn active-siswa";
+            btnGuru.className = "role-btn";
+        } else {
+            btnSiswa.className = "role-btn";
+            btnGuru.className = "role-btn active-guru";
+        }
+    }
+    renderIsiPanduan(role);
 }
 
+function renderHalamanPanduan() {
+    // Default tab mengikuti role login aktif saat ini
+    const activeRole = (typeof currentRoleLogin !== 'undefined' && currentRoleLogin === 'guru') ? 'guru' : 'siswa';
+    gantiTabPanduan(activeRole);
+}
 
+function renderIsiPanduan(role) {
+    const container = document.getElementById('kontenPanduanContainer');
+    if (!container) return;
+
+    if (role === 'guru') {
+        container.innerHTML = `
+        <div class="content-box" style="margin-bottom: 20px; border-color: #A5D6A7; background: #ECFDF5; text-align: left;">
+            <h3 style="color: #2E7D32; margin-top: 0; font-weight: 900; font-size: 16px;">👨‍🏫 Panduan & Fungsi Menu Guru</h3>
+            <p style="margin: 0; font-size: 13px; color: #064E3B; font-weight: 700; line-height: 1.6;">
+                Mode Guru dirancang khusus untuk memfasilitasi pendidik PJOK dalam mengelola presensi harian, memantau riwayat latihan mandiri peserta didik, serta menyelenggarakan asesmen kebugaran jasmani:
+            </p>
+        </div>
+
+        <div class="capaian-container">
+            <!-- 1. Tujuan Pembelajaran -->
+            <div class="card-capaian">
+                <div class="card-capaian-title" style="color: #2E7D32;">
+                    <span>🎯</span> 1. Tujuan Pembelajaran
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Memuat rujukan Capaian Pembelajaran (CP) dan Alur Tujuan Pembelajaran (ATP) PJOK Fase F (SMA/SMK).</p>
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Kegunaan Guru:</p>
+                    <p style="margin: 0; color: #334155;">Sebagai pedoman resmi penyusunan Modul Ajar dan indikator asesmen kebugaran jasmani peserta didik.</p>
+                </div>
+            </div>
+
+            <!-- 2. Materi Pembelajaran -->
+            <div class="card-capaian">
+                <div class="card-capaian-title" style="color: #2E7D32;">
+                    <span>📚</span> 2. Materi Pembelajaran
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Pusat bahan ajar konsep kebugaran jasmani dan tutorial video peragaan gerak latihan.</p>
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fitur di Dalamnya:</p>
+                    <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                        <li style="margin-bottom: 4px;"><b>Pengertian Kebugaran:</b> Landasan teori dan manfaat kebugaran bagi kesehatan.</li>
+                        <li style="margin-bottom: 4px;"><b>Komponen Kebugaran:</b> Pembahasan 4 komponen utama (Kekuatan, Kecepatan, Daya Ledak, Daya Tahan).</li>
+                        <li><b>Tutorial Latihan:</b> Video peragaan Sprint 60M, Pull-Up/Hanging, Sit-Up, dan Long Jump untuk demonstrasi langsung di kelas/lapangan.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. Riwayat Latihan Siswa -->
+            <div class="card-capaian">
+                <div class="card-capaian-title" style="color: #2E7D32;">
+                    <span>🏃</span> 3. Riwayat Latihan Siswa
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Memantau seluruh aktivitas latihan kebugaran jasmani mandiri yang diselesaikan oleh siswa.</p>
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fitur Utama:</p>
+                    <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                        <li style="margin-bottom: 4px;"><b>Daftar Siswa (DataTables):</b> Menampilkan No, Nama, Kelas, Email, dan tombol aksi. Dilengkapi kotak pencarian instan.</li>
+                        <li style="margin-bottom: 4px;"><b>Tombol "Lihat":</b> Membuka pop-up histori latihan siswa (waktu latihan, nama gerakan, angka capaian raw, dan konversi skor TKJI 1-5).</li>
+                        <li><b>📥 Export Excel:</b> Tersedia tombol ekspor pada tabel daftar siswa maupun modal riwayat siswa, mendukung format spreadsheet (.xlsx) dengan failsafe Android Base64.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 4. Manajemen Absensi -->
+            <div class="card-capaian">
+                <div class="card-capaian-title" style="color: #2E7D32;">
+                    <span>📋</span> 4. Manajemen Absensi
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Pengelolaan presensi dan rekap kehadiran siswa di setiap sesi tatap muka PJOK.</p>
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Langkah Kerja Guru:</p>
+                    <ol style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                        <li style="margin-bottom: 4px;">Tekan tombol <b>"+ Buat Token Absen"</b> untuk membuat kode sesi hari ini (misal: <code>SENIN01</code>).</li>
+                        <li style="margin-bottom: 4px;">Umumkan token ke siswa untuk diinput saat login aplikasi.</li>
+                        <li style="margin-bottom: 4px;">Klik <b>"Lihat Data"</b> untuk melihat siswa yang telah hadir secara real-time. Terdapat tombol sakelar (switch) untuk menutup/mengaktifkan sesi absen.</li>
+                        <li>Klik <b>"📥 Export Excel"</b> untuk mengunduh berita acara kehadiran kelas.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- 5. Manajemen Asesmen -->
+            <div class="card-capaian">
+                <div class="card-capaian-title" style="color: #2E7D32;">
+                    <span>⚙️</span> 5. Manajemen Asesmen
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Pusat pembuatan dan penilaian ujian kebugaran jasmani peserta didik.</p>
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Langkah Kerja Guru:</p>
+                    <ol style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                        <li style="margin-bottom: 4px;">Klik <b>"+ Buat Asesmen Baru"</b>, tentukan judul, kategori (Fisik TKJI / Sikap / Pengetahuan), dan kode token ujian.</li>
+                        <li style="margin-bottom: 4px;">Bagikan token kepada siswa yang akan mengikuti asesmen.</li>
+                        <li style="margin-bottom: 4px;">Klik <b>"Rincian"</b> pada sesi asesmen untuk memeriksa skor tiap siswa, status pengerjaan (Draft / Selesai), dan umpan balik otomatis komponen fisik terendah.</li>
+                        <li>Unduh laporan penilaian lengkap via tombol <b>"📥 Export Excel"</b>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- 6. Pengaturan Akun -->
+            <div class="card-capaian">
+                <div class="card-capaian-title" style="color: #2E7D32;">
+                    <span>⚙️</span> 6. Pengaturan Akun
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Pemeriksaan data profil guru pengampu (Nama, NIP, Asal Sekolah, Email, Username).</p>
+                    <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Fitur:</p>
+                    <p style="margin: 0; color: #334155;">Memperbarui informasi profil atau kata sandi melalui tombol <i>"Ubah Data Profil"</i>, serta tombol <b>Logout</b> untuk keluar secara aman.</p>
+                </div>
+            </div>
+        </div>
+        `;
+    } else {
+        container.innerHTML = `
+        <div class="content-box" style="margin-bottom: 20px; border-color: #81D4FA; background: #F0F9FF; text-align: left;">
+            <h3 style="color: #0288D1; margin-top: 0; font-weight: 900; font-size: 16px;">👨‍🎓 Panduan & Fungsi Menu Siswa</h3>
+            <p style="margin: 0; font-size: 13px; color: #1E3A8A; font-weight: 700; line-height: 1.6;">
+                Selamat datang di <b>DILEFORFIT</b>! Aplikasi ini membantu Anda belajar, berlatih, dan mengukur tingkat kebugaran jasmani secara mandiri maupun terstruktur. Berikut adalah panduan setiap menu di dasbor:
+            </p>
+        </div>
+
+        <div class="capaian-container">
+            <!-- 1. Tujuan Pembelajaran -->
+            <div class="card-capaian">
+                <div class="card-capaian-title">
+                    <span>🎯</span> 1. Tujuan Pembelajaran
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Menampilkan target Capaian Pembelajaran (CP) dan Alur Tujuan Pembelajaran (ATP) materi kebugaran jasmani Fase F.</p>
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Panduan Penggunaan:</p>
+                    <p style="margin: 0; color: #334155;">Bacalah menu ini sebelum memulai materi agar Anda mengetahui keterampilan fisik apa saja yang harus dicapai dalam pembelajaran ini.</p>
+                </div>
+            </div>
+
+            <!-- 2. Materi Pembelajaran -->
+            <div class="card-capaian">
+                <div class="card-capaian-title">
+                    <span>📚</span> 2. Materi Pembelajaran
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Tempat mempelajari teori kebugaran jasmani serta menonton video tutorial gerakan latihan kebugaran.</p>
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Fitur & Cara Menggunakan:</p>
+                    <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                        <li style="margin-bottom: 4px;"><b>Pengertian:</b> Pelajari arti penting kebugaran bagi daya tahan dan kesehatan tubuh.</li>
+                        <li style="margin-bottom: 4px;"><b>Komponen Kebugaran:</b> Pahami konsep 4 pilar fisik: Kekuatan, Kecepatan, Daya Ledak, dan Daya Tahan Jantung-Paru.</li>
+                        <li><b>Tutorial Latihan:</b> Tonton video peragaan gerakan. Lakukan gerakan tersebut, lalu tekan tombol <b>"Saya sudah melakukan"</b> untuk menginput capaian Anda (detik, kali, atau cm). Sistem akan otomatis menghitung skor kebugaran Anda (skor 1-5 berdasarkan standar TKJI).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. Mulai Asesmen Baru -->
+            <div class="card-capaian">
+                <div class="card-capaian-title">
+                    <span>📝</span> 3. Mulai Asesmen Baru
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Mengerjakan sesi tes atau evaluasi resmi yang dibuka oleh Guru PJOK.</p>
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Langkah Pengerjaan:</p>
+                    <ol style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                        <li style="margin-bottom: 4px;">Minta <b>Token Asesmen</b> ke guru Anda.</li>
+                        <li style="margin-bottom: 4px;">Masukkan token dan klik "Mulai Asesmen".</li>
+                        <li style="margin-bottom: 4px;">Isi hasil pengukuran fisik Anda sesuai butir tes yang diujikan.</li>
+                        <li>Jika belum selesai dapat menekan <i>"Simpan Sementara"</i>, atau tekan <b>"Kirim Asesmen"</b> jika seluruh data sudah lengkap dan yakin.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- 4. Riwayat Absensi Siswa -->
+            <div class="card-capaian">
+                <div class="card-capaian-title">
+                    <span>📋</span> 4. Riwayat Absensi Siswa
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Melihat daftar kehadiran Anda selama mengikuti kegiatan belajar-mengajar PJOK.</p>
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Informasi yang Ditampilkan:</p>
+                    <p style="margin: 0; color: #334155;">Tanggal absensi, kode token pertemuan, status kehadiran (Hadir/Sakit/Izin/Alfa), dan keterangan tambahan.</p>
+                </div>
+            </div>
+
+            <!-- 5. Riwayat & Evaluasi Asesmen -->
+            <div class="card-capaian">
+                <div class="card-capaian-title">
+                    <span>📈</span> 5. Riwayat & Evaluasi Asesmen
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Melihat rekam jejak nilai evaluasi kebugaran jasmani Anda secara transparan.</p>
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Informasi & Umpan Balik:</p>
+                    <p style="margin: 0; color: #334155;">Menampilkan total skor kebugaran (TKJI), klasifikasi kategori fisik Anda (Baik Sekali, Baik, Sedang, Kurang, Kurang Sekali), serta saran umpan balik otomatis bagian kebugaran tubuh yang perlu ditingkatkan.</p>
+                </div>
+            </div>
+
+            <!-- 6. Pengaturan Akun -->
+            <div class="card-capaian">
+                <div class="card-capaian-title">
+                    <span>⚙️</span> 6. Pengaturan Akun
+                </div>
+                <div class="card-capaian-content">
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Fungsi Menu:</p>
+                    <p style="margin: 0 0 10px 0; color: #334155;">Melihat informasi profil dan pengaturan keamanan akun Anda.</p>
+                    <p style="margin: 0 0 6px 0; color: #0288D1; font-weight: 800;">Fitur:</p>
+                    <p style="margin: 0; color: #334155;">Melihat identitas (Nama, Kelas, No. Absen, Jenis Kelamin, Email, Asal Sekolah), mengubah password atau profil via tombol <i>"Ubah Data Profil"</i>, serta tombol <b>Logout</b> untuk keluar.</p>
+                </div>
+            </div>
+        </div>
+        `;
+    }
+}
 
 // 10. INISIALISASI AUTO-FILL LOGIN
 document.addEventListener('DOMContentLoaded', () => {
