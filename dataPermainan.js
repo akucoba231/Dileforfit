@@ -6,13 +6,20 @@ const dataTutorialLatihan = [
             deskripsi: "Latihan kekuatan melatih otot untuk kontraksi maksimal dan membantu siswa menangani beban sehari-hari tanpa alat tambahan.",
             latihan: [
                 {
-                    level: "Pemula",
+                    /*level: "Pemula",
                     nama: "Wall Push-Up",
                     nama_lokal: "Variasi push-up dinding",
                     deskripsi: "Berdiri menghadap dinding, tangan sejajar bahu, tekuk siku lalu dorong tubuh kembali.",
                     volume: "3 set × 8–10 repetisi",
                     peran_teman: "Mengawasi postur.",
-                    video: "wall_push_up.mp4"
+                    video: "wall_push_up.mp4"*/
+                        level: "Pemula",
+                        nama: "Plank",
+                        nama_lokal: "Sikap Papan",
+                        deskripsi: "Posisi badan telungkup, bertumpu pada kedua siku dan ujung kaki, lalu angkat dan tahan tubuh tetap lurus.",
+                        volume: "60 detik × 3 repetisi",
+                        peran_teman: "Mengawasi postur.",
+                        video: "plank.mp4"
                 },
                 {
                     level: "Menengah",
