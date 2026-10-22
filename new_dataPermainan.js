@@ -6,6 +6,7 @@ const dataTutorialLatihan = [
         deskripsi: "Latihan kekuatan melatih otot untuk kontraksi maksimal dan membantu siswa menangani beban sehari-hari tanpa alat tambahan.",
         latihan: [
             {
+                /*
                 level: "Pemula",
                 nama: "Wall Push-Up",
                 nama_lokal: "Variasi push-up dinding",
@@ -13,7 +14,10 @@ const dataTutorialLatihan = [
                 volume: "3 set × 8–10 repetisi",
                 peran_teman: "Mengawasi postur.",
                 video: "wall_push_up.mp4",
+                */
+
                 tujuan: "Melatih kekuatan otot dada, bahu, dan lengan dengan intensitas ringan, cocok untuk pemanasan atau siswa pemula.",
+                /*
                 langkah: [
                     "Berdiri menghadap dinding dengan jarak kurang lebih satu lengan.",
                     "Letakkan kedua telapak tangan pada dinding selebar bahu, sejajar dengan dada.",
@@ -22,11 +26,29 @@ const dataTutorialLatihan = [
                     "Dorong tubuh kembali ke posisi awal dengan meluruskan siku.",
                     "Ulangi gerakan sesuai jumlah repetisi yang ditentukan."
                 ],
+                */
                 tips: [
                     "Jaga punggung tetap lurus, jangan menekuk pinggul.",
-                    "Atur napas: tarik napas saat menekuk siku, embuskan saat mendorong.",
-                    "Cocok sebagai latihan awal sebelum knee push-up atau standard push-up."
-                ]
+                   // "Atur napas: tarik napas saat menekuk siku, embuskan saat mendorong.",
+                    //"Cocok sebagai latihan awal sebelum knee push-up atau standard push-up."
+                ],
+                
+                level: "Pemula",
+                        nama: "Plank",
+                        nama_lokal: "Sikap Papan",
+                        deskripsi: "Posisi badan telungkup, bertumpu pada kedua siku dan ujung kaki, lalu angkat dan tahan tubuh tetap lurus.",
+                        volume: "60 detik × 3 repetisi",
+                        peran_teman: "Mengawasi postur.",
+                        video: "plank.mp4",
+                langkah : [
+  "Berbaringlah telungkup di atas matras dengan kaki lurus ke belakang.",
+  "Angkat tubuh dengan bertumpu pada kedua lengan bawah (siku) dan ujung jari kaki. Siku berada tepat di bawah bahu, lengan sejajar dan selebar bahu.",
+  "Angkat pinggul hingga kepala, punggung, pinggul, dan tumit membentuk satu garis lurus.",
+  "Kencangkan otot perut, bokong, dan paha. Jangan biarkan pinggul turun atau terlalu naik.",
+  "Pandang lantai di antara kedua tangan agar leher tetap netral dan sejajar dengan tulang belakang.",
+  "Tahan selama 20–60 detik (sesuaikan kemampuan) sambil bernapas normal dan teratur.",
+  "Turunkan lutut dan tubuh perlahan ke matras, lalu istirahat 30–60 detik. Ulangi 2–3 set."
+],
             },
             {
                 level: "Menengah",
