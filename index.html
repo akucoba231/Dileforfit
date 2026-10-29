@@ -2728,58 +2728,65 @@ li {
     }
 
     // fungsi baru agar tombol "selanjutnya" baru bisa dibuka setelah 3 kali latihan
-
+    // Menyimpan progres latihan siswa pada materi yang sedang dibuka
     let wadahLatihan = {
-        id_materi_latihan : "",
-        nama_latihan : [],
-    }
+        id_materi_latihan: "",
+        nama_latihan: []
+    };
 
-    async function catatLatihan(nama_latihan, id_materi_latihan, dataBaru){
-        if(wadahLatihan.id_materi_latihan === ""){
+    async function catatLatihan(nama_latihan, id_materi_latihan, dataBaru) {
+        // Jika berpindah ke materi latihan yang berbeda, reset wadah terlebih dahulu
+        if (wadahLatihan.id_materi_latihan !== id_materi_latihan) {
             wadahLatihan.id_materi_latihan = id_materi_latihan;
-            wadahLatihan.nama_latihan.push(nama_latihan);
-            await api.post('latihan', dataBaru); // lebih baik di sini
+            wadahLatihan.nama_latihan = [];
         }
-        else {
-            if (wadahLatihan.id_materi_latihan === id_materi_latihan) {
-                // fokus ke penambahan atribut kedua
-                if(wadahLatihan.nama_latihan.includes(nama_latihan)){
-                    // abaikan karena latihan sudah pernah
-                }
-                else {
-                    wadahLatihan.nama_latihan.push(nama_latihan);
-                    await api.post('latihan', dataBaru); // lebih baik di sini
-                }
-            }
-            else {
-                // reset untuk ganti latihan
-                wadahLatihan.id_materi_latihan = id_materi_latihan;
-                wadahLatihan.nama_latihan = [] // reset dulu
-                
-                wadahLatihan.nama_latihan.push(nama_latihan);
-                await api.post('latihan', dataBaru); // lebih baik di sini
-            }
+
+        // Cek apakah variasi latihan ini sudah pernah dilakukan di sesi ini
+        if (wadahLatihan.nama_latihan.includes(nama_latihan)) {
+            return "SUDAH_ADA";
         }
+
+        // Kirim ke server terlebih dahulu
+        const result = await api.post('latihan', dataBaru);
+        if (result && result.error) {
+            return "ERROR";
+        }
+
+        // Jika sukses tersimpan di server, baru masukkan ke daftar latihan selesai
+        wadahLatihan.nama_latihan.push(nama_latihan);
+        return "TERSIMPAN";
     }
 
+    function periksaLatihan(id_materi_latihan, statusCatat) {
+        // Jika gagal simpan ke server, hentikan (pesan error sudah ditampilkan oleh api.js)
+        if (statusCatat === "ERROR") return;
 
-    function periksaLatihan(id_materi_latihan){
-        let counter = 3;
-        counter = counter - (wadahLatihan.nama_latihan.length);
-        if(wadahLatihan.id_materi_latihan === id_materi_latihan && wadahLatihan.nama_latihan.length === 3){
-            lock("btnNext",false)    
-            showModal('Berhasil','Data latihan berhasil disimpan, Anda bisa melanjutkan ke materi latihan yang lain.');
+        const jumlahSelesai = wadahLatihan.nama_latihan.length;
+        const sisa = Math.max(0, 3 - jumlahSelesai);
+
+        // Jika siswa mengklik latihan yang sama dua kali
+        if (statusCatat === "SUDAH_ADA") {
+            if (jumlahSelesai >= 3) {
+                lock("btnNext", false);
+                showModal('Informasi', 'Latihan ini sudah Anda lakukan. Anda sudah menyelesaikan minimal 3 latihan dan bisa melanjutkan.');
+            } else {
+                showModal('Informasi', `Latihan ini sudah dicatat sebelumnya. Silakan pilih ${sisa} variasi latihan ${id_materi_latihan} lainnya untuk melanjutkan.`);
+            }
+            return;
         }
-        else {
-            showModal('Berhasil','Data latihan berhasil disimpan, selesaikan ' + counter + ' latihan ' + id_materi_latihan + ' lagi untuk melanjutkan.');
+
+        // Jika baru saja berhasil disimpan dan sudah mencapai minimal 3 latihan
+        if (wadahLatihan.id_materi_latihan === id_materi_latihan && jumlahSelesai >= 3) {
+            lock("btnNext", false);
+            showModal('Berhasil', 'Data latihan berhasil disimpan, Anda bisa melanjutkan ke materi latihan yang lain.');
+        } else {
+            showModal('Berhasil', `Data latihan berhasil disimpan, selesaikan ${sisa} latihan ${id_materi_latihan} lagi untuk melanjutkan.`);
         }
     }
-
-    // ini untuk mengaktifkan kembali simpan latihan old version
 
     async function simpanLatihanOld(nama_latihan, id_materi_latihan) {
         if (!loggedInUser || currentRoleLogin !== 'siswa') {
-            showModal('Berhasil','Harap login sebagai siswa untuk menyimpan data latihan.');
+            showModal('Perhatian', 'Harap login sebagai siswa untuk menyimpan data latihan.');
             return;
         }
 
@@ -2790,17 +2797,12 @@ li {
             tangal_melakukan: new Date().toISOString(),
             id_siswa: loggedInUser.id_siswa,
             raw_input: "",
-            hasil_penilaian: "",
+            hasil_penilaian: ""
         };
 
-        //await api.post('latihan', dataBaru);
-        
-        catatLatihan(nama_latihan, id_materi_latihan, dataBaru);
-        periksaLatihan(id_materi_latihan);
-        //lock("btnNext",false)
-        //showModal('Berhasil','Data latihan berhasil disimpan!');
+        const statusCatat = await catatLatihan(nama_latihan, id_materi_latihan, dataBaru);
+        periksaLatihan(id_materi_latihan, statusCatat);
     }
-
 
     // ini simpanlatihan terbaru
 
