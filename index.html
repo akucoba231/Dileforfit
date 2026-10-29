@@ -2619,7 +2619,7 @@ li {
 
                     ${videoHTML}
                     <div style="margin-top: 15px; text-align: center;">
-                        <button style="padding: 10px 20px; font-size: 14px; border-radius: 8px; border: none; cursor: pointer; color: white;" onclick="simpanLatihan('${latihan.nama.replace(/'/g, "\\'")}', '${item.id}')">Saya sudah melakukan</button>
+                        <button style="padding: 10px 20px; font-size: 14px; border-radius: 8px; border: none; cursor: pointer; color: white;" onclick="simpanLatihanOld('${latihan.nama.replace(/'/g, "\\'")}', '${item.id}')">Saya sudah melakukan</button>
                     </div>
                 </div>
             </div>
@@ -2726,6 +2726,83 @@ li {
                 return 1;
         }
     }
+
+    // fungsi baru agar tombol "selanjutnya" baru bisa dibuka setelah 3 kali latihan
+
+    let wadahLatihan = {
+        id_materi_latihan : "",
+        nama_latihan : [],
+    }
+
+    async function catatLatihan(nama_latihan, id_materi_latihan, dataBaru){
+        if(wadahLatihan.id_materi_latihan === ""){
+            wadahLatihan.id_materi_latihan = id_materi_latihan;
+            wadahLatihan.nama_latihan.push(nama_latihan);
+            await api.post('latihan', dataBaru); // lebih baik di sini
+        }
+        else {
+            if (wadahLatihan.id_materi_latihan === id_materi_latihan) {
+                // fokus ke penambahan atribut kedua
+                if(wadahLatihan.nama_latihan.includes(nama_latihan)){
+                    // abaikan karena latihan sudah pernah
+                }
+                else {
+                    wadahLatihan.nama_latihan.push(nama_latihan);
+                    await api.post('latihan', dataBaru); // lebih baik di sini
+                }
+            }
+            else {
+                // reset untuk ganti latihan
+                wadahLatihan.id_materi_latihan = id_materi_latihan;
+                wadahLatihan.nama_latihan = [] // reset dulu
+                
+                wadahLatihan.nama_latihan.push(nama_latihan);
+                await api.post('latihan', dataBaru); // lebih baik di sini
+            }
+        }
+    }
+
+
+    function periksaLatihan(id_materi_latihan){
+        let counter = 3;
+        counter = counter - (wadahLatihan.nama_latihan.length);
+        if(wadahLatihan.id_materi_latihan === id_materi_latihan && wadahLatihan.nama_latihan.length === 3){
+            lock("btnNext",false)    
+            showModal('Berhasil','Data latihan berhasil disimpan, Anda bisa melanjutkan ke materi latihan yang lain.');
+        }
+        else {
+            showModal('Berhasil','Data latihan berhasil disimpan, selesaikan ' + counter + ' latihan ' + id_materi_latihan + ' lagi untuk melanjutkan.');
+        }
+    }
+
+    // ini untuk mengaktifkan kembali simpan latihan old version
+
+    async function simpanLatihanOld(nama_latihan, id_materi_latihan) {
+        if (!loggedInUser || currentRoleLogin !== 'siswa') {
+            showModal('Berhasil','Harap login sebagai siswa untuk menyimpan data latihan.');
+            return;
+        }
+
+        const dataBaru = {
+            id_latihan: Date.now(),
+            nama_latihan: nama_latihan,
+            id_materi_latihan: id_materi_latihan,
+            tangal_melakukan: new Date().toISOString(),
+            id_siswa: loggedInUser.id_siswa,
+            raw_input: "",
+            hasil_penilaian: "",
+        };
+
+        //await api.post('latihan', dataBaru);
+        
+        catatLatihan(nama_latihan, id_materi_latihan, dataBaru);
+        periksaLatihan(id_materi_latihan);
+        //lock("btnNext",false)
+        //showModal('Berhasil','Data latihan berhasil disimpan!');
+    }
+
+
+    // ini simpanlatihan terbaru
 
     let tempLatihanAktif = null;
 
