@@ -233,7 +233,7 @@ const dataTutorialLatihan = [
                 deskripsi: "Lompat maju dengan hentakan kuat, ulangi sejauh 5–10 meter.",
                 volume: "3 set × 12 repetisi",
                 peran_teman: "Menandai garis.",
-                video: "lompat_beruntun.mp4",
+                video: "bounding.mp4",
                 tujuan: "Melatih daya ledak otot tungkai serta koordinasi gerak lari dan lompat (pliometrik).",
                 langkah: [
                     "Berdiri di titik start dengan posisi siap lari.",
