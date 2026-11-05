@@ -1514,6 +1514,11 @@ li {
             <label class="label-asesmen">2. Gantung Angkat Tubuh</label>
             <span class="desc-asesmen" id="descGantung">Keterangan</span>
             <input type="number" min="0" max="99" onchange="cekInput(this)" id="valGantung" placeholder="Masukkan Angka">
+            <div style="display: flex; gap: 10px;" id="gantungNewForm">
+                <input type="number" id="gantungMenit" min="0" max="99" onchange="setInput(this,'valGantung')" placeholder="Menit" style="width: 50%;">
+                <input type="number" id="gantungDetik" min="0" max="99" onchange="setInput(this,'valGantung')" placeholder="Detik" style="width: 50%;">
+                <input type="number" id="gantungMiliDetik" min="0" max="99" onchange="setInput(this,'valGantung')" placeholder="MiliDetik" style="width: 50%;">
+            </div>
         </div>
         
         <div class="content-box">
@@ -3563,7 +3568,7 @@ li {
                 updateLabelGender(); 
 
                 // 1. Reset seluruh form (hapus value, hapus atribut disabled)
-                const inputs = ['valLari60', 'valGantung', 'valBaring', 'valLompat', 'valLariMenit', 'valLariDetik', 'valLariMiliDetik', 'valLari60MiliDetik', 'valLari60Detik', 'valLari60Menit'];
+                const inputs = ['valLari60', 'valGantung', 'valBaring', 'valLompat', 'valLariMenit', 'valLariDetik', 'valLariMiliDetik', 'valLari60MiliDetik', 'valLari60Detik', 'valLari60Menit', 'gantungMenit', 'gantungDetik', 'gantungMiliDetik'];
                 inputs.forEach(id => {
                     const el = document.getElementById(id);
                     el.value = '';
@@ -3590,6 +3595,11 @@ li {
                         // hilangkan setting menit, detik, milidetik untuk ini
                         document.getElementById('valLari60').style.display = "block";
                         document.getElementById('lari60NewForm').style.display = "none";
+
+
+                        document.getElementById('valGantung').style.display = "block";
+                        document.getElementById('gantungNewForm').style.display = "none";
+
                         setField('valLari60Menit', 0);
                         setField('valLari60Detik', 0);
                         setField('valLari60MiliDetik', 0);
@@ -3610,6 +3620,16 @@ li {
                 else{
                     document.getElementById('lari60NewForm').style.display = "flex";
                     document.getElementById('valLari60').style.display = "none";
+
+                    if(loggedInUser.jenis_kelamin === "Putri"){
+                        document.getElementById('valGantung').style.display = "none";
+                        document.getElementById('gantungNewForm').style.display = "flex";
+                    }
+                    else {
+                        document.getElementById('valGantung').style.display = "block";
+                        document.getElementById('gantungNewForm').style.display = "none";   
+                    }
+                    
                 }
 
                 nav('page-asesmen-fisik');
@@ -3645,7 +3665,8 @@ li {
             document.getElementById('descLari60').innerText = `Catat waktu tempuh terbaik (menit, detik, milidetik)`; 
             document.getElementById('valLari60').placeholder = `Contoh: 7.2 (${ket.lari60})`;
 
-            document.getElementById('descGantung').innerText = isPutri ? `Normatif Putri: Tahan gantung (${ket.gantung}).` : `Normatif Putra: Pull-up (${ket.gantung}).`; 
+            // document.getElementById('descGantung').innerText = isPutri ? `Normatif Putri: Tahan gantung (${ket.gantung}).` : `Normatif Putra: Pull-up (${ket.gantung}).`; 
+            document.getElementById('descGantung').innerText = isPutri ? `Normatif Putri: Tahan gantung (menit, detik, milidetik).` : `Normatif Putra: Pull-up (${ket.gantung}).`; 
             document.getElementById('valGantung').placeholder = `Contoh: ${isPutri ? '30' : '15'} (${ket.gantung})`;
 
             document.getElementById('descBaring').innerText = `Catat total jumlah angkatan (${ket.baring}).`; 
@@ -5314,13 +5335,13 @@ function cekInput(el){
             //showModal("tes oke", el.id);
         }   
     }
-    else if(el.id === "valLariMiliDetik" || el.id === "valLari60MiliDetik" ){
+    else if(el.id === "valLariMiliDetik" || el.id === "valLari60MiliDetik" || el.id === "gantungMiliDetik" ){
         if(el.value > 999){
             showModal("Perhatian!","Maksimal nilai hanya 999");
             el.value = 999;
         }
     }
-    else if(el.id.includes("valLari")){
+    else if(el.id.includes("valLari") || el.id.includes('Menit') || el.id.includes('Detik')){
         if(el.value > 59){
             showModal("Perhatian!","Maksimal nilai hanya 59");
             el.value = 59;
@@ -5337,6 +5358,26 @@ function cekInput(el){
     }
 }
 
+function setInput(el, target){
+    cekInput(el);
+    //console.log('tes');
+    let targetEl = document.getElementById(target);
+    targetEl.value = gantungNewValue() // khusus untuk perempuan
+}
+
+function gantungNewValue(){
+    let menit = document.getElementById('gantungMenit').value;
+    let detik = document.getElementById('gantungDetik').value;
+    let milidetik = document.getElementById('gantungMiliDetik').value;
+
+    menit = (menit == '' ? 0 : parseFloat(menit));
+    detik = (detik == '' ? 0 : parseFloat(detik));
+    milidetik = (milidetik == '' ? 0 : parseFloat(milidetik));
+
+    let total = (menit*60) + (detik) + (milidetik/1000);
+
+    return total;
+}
 
 // 10. INISIALISASI AUTO-FILL LOGIN
 document.addEventListener('DOMContentLoaded', () => {
