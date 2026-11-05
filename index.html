@@ -11,8 +11,8 @@
     <style>
 /* --- CSS TEMA UMUM & "SISWA" (SOFT BLUE) --- */
 :root {
-	--putih : #FFFFFF;
-	--hitam : #334155;
+    --putih : #FFFFFF;
+    --hitam : #334155;
 }
 body { 
     margin: 0; font-family: 'Nunito', sans-serif; background-color: #F4F9F9; 
@@ -727,11 +727,11 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 
 .bottom-nav-new {
-	position: relative;
-	transform: translateY(0);
-	justify-content: flex-start;
-	align-items: center;
-	padding: 0;
+    position: relative;
+    transform: translateY(0);
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0;
 }
 
 
@@ -1047,7 +1047,7 @@ li {
                 <div class="content-box form-register" style="box-shadow:none; padding:15px; margin-bottom:15px;">
                     <label id="modalLatihanFieldLabel" class="form-label">Capaian Latihan</label>
                     <span id="modalLatihanFieldDesc" class="desc-asesmen" style="margin-bottom: 6px; font-size: 12px; color: #757575; font-weight: 700;">Masukkan angka hasil capaian Anda.</span>
-                    <input type="number" step="any" id="inputNilaiLatihanRaw" placeholder="Masukkan angka..." style="padding: 12px 15px; font-size: 16px;">
+                    <input type="number" step="any" id="inputNilaiLatihanRaw" placeholder="Masukkan angka..." min="0" max="99" onchange="cekInput(this)" style="padding: 12px 15px; font-size: 16px;">
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -1080,7 +1080,7 @@ li {
             </button>
         </div>
         <div class="logo-image">
-        	<img src="assets/logo.png" alt="logo-apps" />
+            <img src="assets/logo.png" alt="logo-apps" />
         </div>
         <div class="title-text">LOGIN APLIKASI</div>
         
@@ -1187,7 +1187,7 @@ li {
 
     <div id="page-dashboard" class="page">
         <div class="logo-image">
-        	<img src="assets/logo.png" alt="logo-apps" />
+            <img src="assets/logo.png" alt="logo-apps" />
         </div>
         <div class="title-text">Dasbor Utama</div>
         
@@ -1240,23 +1240,29 @@ li {
             <div class="card-capaian">
                 <div class="card-capaian-title"><span>🌟</span> Capaian Pembelajaran</div>
                 <div class="card-capaian-content">
-                    Peserta didik merancang strategi peningkatan aktivitas kebugaran untuk kesehatan.
+                    <!-- Peserta didik merancang strategi peningkatan aktivitas kebugaran untuk kesehatan. -->
+                    Murid berpartisipasi dalam aktivitas kebugaran dan mengevaluasi dampak partisipasi yang teratur. Mereka juga mengevaluasi strategi peningkatan pemanfaatan aktivitas kebugaran di luar ruang.
                 </div>
             </div>
             <div class="card-capaian">
                 <div class="card-capaian-title"><span>🛤️</span> Alur Tujuan Pembelajaran</div>
                 <div class="card-capaian-content">
-                    Merancang dan mempraktikan program latihan kebugaran jasmani individu yang berkaitan dengan keterampilan berdasarkan prinsip FITT (Frequency, Intensity, Time, Type).
+                    Merancang dan mempraktikan program latihan kebugaran jasmani individu <!-- yang berkaitan dengan keterampilan  -->berdasarkan prinsip FITT (Frequency, Intensity, Time, Type).
                 </div>
             </div>
             <div class="card-capaian">
                 <div class="card-capaian-title"><span>🎯</span> Tujuan Pembelajaran</div>
                 <div class="card-capaian-content">
                     <ol>
-                        <li>Peserta didik dapat memahami konsep dari komponen kebugaran jasmani (kekuatan, daya tahan, daya ledak dan kecepatan) dengan benar.</li>
+                        <!-- <li>Peserta didik dapat memahami konsep dari komponen kebugaran jasmani (kekuatan, daya tahan, daya ledak dan kecepatan) dengan benar.</li>
                         <li>Peserta didik dapat merancang variasi bentuk latihan sesuai dengan komponen kebugaran jasmani dengan kreatif.</li>
                         <li>Peserta didik dapat melakukan berbagai bentuk latihan untuk meningkatkan komponen kebugaran jasmani dengan teknik yang benar dan dapat bertanggung jawab.</li>
-                        <li>Peserta didik dapat menghitung dan melakukan tes kebugaran jasmani dengan benar dan jujur.</li>
+                        <li>Peserta didik dapat menghitung dan melakukan tes kebugaran jasmani dengan benar dan jujur.</li> -->
+
+                        <li>Memahami konsep komponen kebugaran (kekuatan, daya tahan, daya ledak, kecepatan);</li>
+                        <li>Merancang variasi latihan secara kreatif;</li>
+                        <li>Mempraktikkan latihan dengan teknik yang benar dan bertanggung jawab;</li>
+                        <li>Melakukan tes kebugaran jasmani dengan benar dan jujur, serta mengevaluasi dampak latihan yang teratur berdasarkan perbandingan hasil tes awal dan tes akhir.</li>
                     </ol>
                 </div>
             </div>
@@ -1496,43 +1502,49 @@ li {
         <div class="content-box">
             <label class="label-asesmen">1. Lari 60 Meter</label>
             <span class="desc-asesmen" id="descLari60">Catat waktu tempuh terbaik.</span>
-            <input type="number" step="0.1" id="valLari60" placeholder="Masukkan Angka">
+            <input type="number" step="0.1" id="valLari60" placeholder="Masukkan Angka" readonly>
+            <div style="display: flex; gap: 10px;" id="lari60NewForm">
+                <input type="number" id="valLari60Menit" min="0" max="99" onchange="cekInput(this)" placeholder="Menit" style="width: 50%;">
+                <input type="number" id="valLari60Detik" min="0" max="99" onchange="cekInput(this)" placeholder="Detik" style="width: 50%;">
+                <input type="number" id="valLari60MiliDetik" min="0" max="99" onchange="cekInput(this)" placeholder="MiliDetik" style="width: 50%;">
+            </div>
         </div>
         
         <div class="content-box">
             <label class="label-asesmen">2. Gantung Angkat Tubuh</label>
             <span class="desc-asesmen" id="descGantung">Keterangan</span>
-            <input type="number" id="valGantung" placeholder="Masukkan Angka">
+            <input type="number" min="0" max="99" onchange="cekInput(this)" id="valGantung" placeholder="Masukkan Angka">
         </div>
         
         <div class="content-box">
             <label class="label-asesmen">3. Baring Duduk (Sit-Up)</label>
             <span class="desc-asesmen" id="descBaring">Catat total jumlah angkatan.</span>
-            <input type="number" id="valBaring" placeholder="Masukkan Angka">
+            <input type="number" id="valBaring" min="0" max="99" onchange="cekInput(this)" placeholder="Masukkan Angka">
         </div>
         
         <div class="content-box">
             <label class="label-asesmen">4. Lompat Tegak</label>
             <span class="desc-asesmen" id="descLompat">Catat selisih raihan loncatan tertinggi.</span>
-            <input type="number" id="valLompat" placeholder="Masukkan Angka">
+            <input type="number" min="0" max="1000" onchange="cekInput(this)" id="valLompat" placeholder="Masukkan Angka">
         </div>
         
         <div class="content-box">
             <label class="label-asesmen" id="labelLariJauh">5. Lari Jarak Jauh</label>
             <span class="desc-asesmen" id="descLariJauh">Keterangan Lari</span>
             <div style="display: flex; gap: 10px;">
-                <input type="number" id="valLariMenit" placeholder="Menit" style="width: 50%;">
-                <input type="number" id="valLariDetik" placeholder="Detik" style="width: 50%;">
+                <input type="number" id="valLariMenit" min="0" max="99" onchange="cekInput(this)" placeholder="Menit" style="width: 50%;">
+                <input type="number" id="valLariDetik" min="0" max="99" onchange="cekInput(this)" placeholder="Detik" style="width: 50%;">
+                <input type="number" id="valLariMiliDetik" min="0" max="99" onchange="cekInput(this)" placeholder="MiliDetik" style="width: 50%;">
             </div>
         </div>
         
-	<!--<button onclick="simpanNilaiTKJI()" style="margin-top: 10px;">Kirim & Simpan Nilai ✔</button>-->
-	<div style="display: flex; gap: 10px; margin-top: 10px;">
+    <!--<button onclick="simpanNilaiTKJI()" style="margin-top: 10px;">Kirim & Simpan Nilai ✔</button>-->
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
     <button onclick="simpanNilaiTKJI('Draft')" style="background: linear-gradient(180deg, #FFF59D, #FBC02D); color: #F57F17; border-color: #FFFDE7; box-shadow: 0 5px 0 #FBC02D;">Simpan Sementara 💾</button>
     <button onclick="simpanNilaiTKJI('Selesai')" class="btn-success">Kirim Asesmen ✔</button>
 </div>
         <div style="height: 40px;"></div>
-		     <div class="bottom-nav-new" style="display:flex;">
+             <div class="bottom-nav-new" style="display:flex;">
     <button class="btn-warning" onclick="return confirm('apakah kamu yakin untuk kembali?') ? nav('page-input-token') : '';">Kembali</button>
     <!-- <button id="btnNext" onclick="">Selanjutnya</button> -->
 </div>
@@ -3551,7 +3563,7 @@ li {
                 updateLabelGender(); 
 
                 // 1. Reset seluruh form (hapus value, hapus atribut disabled)
-                const inputs = ['valLari60', 'valGantung', 'valBaring', 'valLompat', 'valLariMenit', 'valLariDetik'];
+                const inputs = ['valLari60', 'valGantung', 'valBaring', 'valLompat', 'valLariMenit', 'valLariDetik', 'valLariMiliDetik', 'valLari60MiliDetik', 'valLari60Detik', 'valLari60Menit'];
                 inputs.forEach(id => {
                     const el = document.getElementById(id);
                     el.value = '';
@@ -3575,16 +3587,29 @@ li {
                         };
 
                         setField('valLari60', draft.lari60);
+                        // hilangkan setting menit, detik, milidetik untuk ini
+                        document.getElementById('valLari60').style.display = "block";
+                        document.getElementById('lari60NewForm').style.display = "none";
+                        setField('valLari60Menit', 0);
+                        setField('valLari60Detik', 0);
+                        setField('valLari60MiliDetik', 0);
+
                         setField('valGantung', draft.gantung);
                         setField('valBaring', draft.baring);
                         setField('valLompat', draft.lompat);
                         setField('valLariMenit', draft.lariMenit);
                         setField('valLariDetik', draft.lariDetik);
+                        // tambahan karena menggunakan mili detik
+                        setField('valLariMiliDetik', (draft.lariMiliDetik === undefined ? 0 : draft.lariMiliDetik));
 
                         setTimeout(() => showModal('Melanjutkan Asesmen', 'Data asesmen sebelumnya dimuat. Kolom yang sudah terisi tidak dapat diubah lagi.'), 500);
                     } catch(e) {
                         console.error('Gagal parse draft', e);
                     }
+                }
+                else{
+                    document.getElementById('lari60NewForm').style.display = "flex";
+                    document.getElementById('valLari60').style.display = "none";
                 }
 
                 nav('page-asesmen-fisik');
@@ -3616,7 +3641,8 @@ li {
             const ket = refNorma.ketentuan; 
             const isPutri = genderValue === 'Putri';
 
-            document.getElementById('descLari60').innerText = `Catat waktu tempuh terbaik (${ket.lari60}).`; 
+            // document.getElementById('descLari60').innerText = `Catat waktu tempuh terbaik (${ket.lari60})`; 
+            document.getElementById('descLari60').innerText = `Catat waktu tempuh terbaik (menit, detik, milidetik)`; 
             document.getElementById('valLari60').placeholder = `Contoh: 7.2 (${ket.lari60})`;
 
             document.getElementById('descGantung').innerText = isPutri ? `Normatif Putri: Tahan gantung (${ket.gantung}).` : `Normatif Putra: Pull-up (${ket.gantung}).`; 
@@ -3629,7 +3655,7 @@ li {
             document.getElementById('valLompat').placeholder = `Contoh: 50 (${ket.lompat})`;
 
             document.getElementById('labelLariJauh').innerText = `5. Lari ${ket.lariJauh}`; 
-            document.getElementById('descLariJauh').innerText = `Normatif ${genderValue}: Jarak ${ket.lariJauh}. Catat (Menit & Detik).`;
+            document.getElementById('descLariJauh').innerText = `Normatif ${genderValue}: Jarak ${ket.lariJauh}. Catat (Menit, Detik, Mili Detik).`;
         }
     }
 
@@ -3761,23 +3787,42 @@ li {
     // }
 
     async function simpanNilaiTKJI(statusPengerjaan = 'Selesai') {
-        const rawLari60 = document.getElementById('valLari60').value; 
+        let rawLari60El = document.getElementById('valLari60'); // sudah tidak digunakan value nya, ambil elementnya
+        // update untuk lari 60 meter
+        let rawLari60Menit = document.getElementById('valLari60Menit').value;
+        let rawLari60Detik = document.getElementById('valLari60Detik').value;
+        let rawLari60MiliDetik = document.getElementById('valLari60MiliDetik').value;
+        // oke jadi setelah ketiga data sudah didapatkan maka kita masukan ke rawLari60
+        // ini menyebabkan error data yang dikirim pasca penyimpanan menjadi 0 karena ketiganya berisi 0
+        if(rawLari60Menit == 0 && rawLari60Detik == 0 && rawLari60MiliDetik == 0){ //artinya data diambil dari save file
+            // jangan lakukan apa-apa
+        }
+        else {
+            rawLari60El.value = parseFloat(rawLari60Menit*60) + parseFloat(rawLari60Detik) + parseFloat(rawLari60MiliDetik/1000);
+        }
+
+        let rawLari60 = document.getElementById('valLari60').value; // sudah tidak digunakan value nya, ambil elementnya
+
         const rawGantung = document.getElementById('valGantung').value; 
         const rawBaring = document.getElementById('valBaring').value; 
         const rawLompat = document.getElementById('valLompat').value; 
         const rawLariMenit = document.getElementById('valLariMenit').value; 
         const rawLariDetik = document.getElementById('valLariDetik').value;
+        // penambahan raw untuk mili detik lari jarak jauh
+        const rawLariMiliDetik = document.getElementById('valLariMiliDetik').value;
+
         const tokenAktif = document.getElementById('labelTokenAktif').innerText;
 
         // --- ALUR DRAFT ---
         if(statusPengerjaan === 'Draft') {
             const draftData = {
-                lari60: rawLari60, 
+                lari60: rawLari60,
                 gantung: rawGantung, 
                 baring: rawBaring, 
                 lompat: rawLompat, 
                 lariMenit: rawLariMenit, 
-                lariDetik: rawLariDetik
+                lariDetik: rawLariDetik,
+                lariMiliDetik: rawLariMiliDetik
             };
             
             // Simpan ke localStorage saja
@@ -3794,7 +3839,7 @@ li {
         }
 
         // --- ALUR SELESAI ---
-        if(rawLari60 === '' || rawGantung === '' || rawBaring === '' || rawLompat === '' || (rawLariMenit === '' && rawLariDetik === '')) {
+        if(/*rawLari60 === ''*/ (rawLari60Menit === '' && rawLari60Detik === '' && rawLari60MiliDetik === '') || rawGantung === '' || rawBaring === '' || rawLompat === '' || (rawLariMenit === '' && rawLariDetik === '' && rawLariMiliDetik === '')) {
             return showModal("Peringatan", "Harap isi semua kolom asesmen untuk mengirim final.");
         }
 
@@ -3804,9 +3849,11 @@ li {
         const vLompat = parseFloat(rawLompat) || 0; 
         const vLariJauhMenit = parseFloat(rawLariMenit) || 0; 
         const vLariJauhDetik = parseFloat(rawLariDetik) || 0;
+        // tambahan untuk MiliDetik
+        const vLariJauhMiliDetik = parseFloat(rawLariMiliDetik) || 0;
 
         const gender = document.getElementById('selectGender').value; 
-        const totalDetikLariJauh = (vLariJauhMenit * 60) + vLariJauhDetik;
+        const totalDetikLariJauh = (vLariJauhMenit * 60) + vLariJauhDetik + (vLariJauhMiliDetik / 1000); // penambahan mili detik
 
         let skorLari60 = 0, skorGantung = 0, skorBaring = 0, skorLompat = 0, skorLariJauh = 0;
 
@@ -3838,6 +3885,28 @@ li {
         const idPenilaianTetap = "NILAI" + Date.now();
         const tanggalPenilaianTetap = new Date().toLocaleString('id-ID');
 
+        // let uji_coba = {
+        //         hasil_penilaian: { 
+        //             lari60: skorLari60, 
+        //             gantung: skorGantung, 
+        //             baring: skorBaring, 
+        //             lompat: skorLompat, 
+        //             lariJauh: skorLariJauh 
+        //         },
+        //         raw_input: {
+        //             lari60: rawLari60, 
+        //             gantung: rawGantung, 
+        //             baring: rawBaring, 
+        //             lompat: rawLompat, 
+        //             lariMenit: rawLariMenit, 
+        //             lariDetik: rawLariDetik
+        //         }
+        //     }
+
+        //     console.log(uji_coba);
+        //     return;
+
+        
         // Push data sebagai objek baru
         let result = null;
         if (id_assesment_aktif === 'DUMMY_ID') {
@@ -3869,6 +3938,7 @@ li {
                 }
             });
         }
+        
 
         if (result && result.error) {
             showModal('Error Menyimpan', 'Asesmen gagal dikirim, error : ' + result.error);
@@ -4071,7 +4141,7 @@ li {
                 } else if (key === 'lompat') {
                     rawStr = ` - ${rawObj.lompat} cm`;
                 } else if (key === 'lariJauh') {
-                	const resS = await api.get('siswa', {id_siswa: record.id_siswa}); const std = (resS && resS[0]) ? resS[0] : loggedInUser;
+                    const resS = await api.get('siswa', {id_siswa: record.id_siswa}); const std = (resS && resS[0]) ? resS[0] : loggedInUser;
                     const isPutri = std && std.jenis_kelamin && std.jenis_kelamin.toLowerCase() === 'putri';
                     rawStr = ` - ${isPutri ? '(1000 m)' : '(1200 m)'} ${rawObj.lariMenit || 0} menit ${rawObj.lariDetik || 0} detik`;
                 }
@@ -4102,6 +4172,7 @@ li {
       return;
     }*/
     
+    // untuk menampilkan tombol selanjutnya 
     btnNext.style.visibility = "visible";
     if(btnNext.classList.contains("btn-warning"))
     {
@@ -4120,7 +4191,9 @@ li {
     else if(targetId === "page-input-token"){
       btnNext.textContent = "Riwayat Assesment";
     }
-    else if(targetId.includes('page-asesmen') || targetId.includes('page-manajemen-') || targetId === 'page-akun' || targetId === 'page-riwayat-absensi' || targetId === 'page-riwayat-asesmen' || targetId === 'page-rincian-evaluasi' || targetId === 'page-riwayat-latihan-guru' || targetId === 'page-panduan'){
+
+    // untuk disembunyikan
+    else if(targetId.includes('page-asesmen') || targetId.includes('page-manajemen-') || targetId === 'page-akun' || targetId === 'page-riwayat-absensi' || targetId === 'page-riwayat-asesmen' || targetId === 'page-rincian-evaluasi' || targetId === 'page-riwayat-latihan-guru' || targetId === 'page-panduan' || targetId.includes('page-rincian')){
       btnNext.style.visibility = "hidden";
     }
     /* else if(targetId === 'page-riwayat-asesmen'){
@@ -4131,13 +4204,13 @@ li {
       btnNext.textContent = "Selanjutnya";
       if(targetId === 'page-tutorial-detail'){
         lock('btnNext', true);
-		  
+          
       }
     }
 
     if (!page || !bottomNav || !btnBackBottom || targetId === "page-login" || targetId === "page-asesmen-fisik" || targetId === "page-register-siswa" || targetId === "page-register-guru") 
     {
-	console.log('bukan');
+    console.log('bukan');
         bottomNav.style.display = 'none';
         if(targetId === "page-reset-password"){
             footerApps.style.display = 'none';
@@ -4145,7 +4218,7 @@ li {
         else {
             footerApps.style.display = 'block';
         }
-	return;
+    return;
     }
     // cek tombol kembali di atas
     const backBtnTop = page.querySelector('.btn-back-ios');
@@ -5218,6 +5291,50 @@ function jagaNomorUrut(dtInstance, colIndex = 0) {
     api.column(colIndex, { page: 'current' }).nodes().each(function(cell, i) {
         cell.innerHTML = startIndex + i + 1;
     });
+}
+
+function cekInput(el){
+
+    if(el.id === "valGantung" && loggedInUser.jenis_kelamin === "Putri"){
+        el.max = "1800";
+        if(el.value > 1800){
+            showModal("Perhatian!","Maksimal nilai hanya 1800 detik");
+            el.value = 1800;
+        }
+        else {
+            //showModal("tes oke", el.id);
+        }
+    }
+    else if (el.id === "valLompat") {
+        if(el.value > 1000){
+            showModal("Perhatian!","Maksimal nilai hanya 1000 cm");
+            el.value = 1000;
+        }
+        else {
+            //showModal("tes oke", el.id);
+        }   
+    }
+    else if(el.id === "valLariMiliDetik" || el.id === "valLari60MiliDetik" ){
+        if(el.value > 999){
+            showModal("Perhatian!","Maksimal nilai hanya 999");
+            el.value = 999;
+        }
+    }
+    else if(el.id.includes("valLari")){
+        if(el.value > 59){
+            showModal("Perhatian!","Maksimal nilai hanya 59");
+            el.value = 59;
+        }
+    }
+    else {
+        if(el.value > 99){
+            showModal("Perhatian!","Maksimal nilai hanya 99");
+            el.value = 99;
+        }
+        else {
+            //showModal("tes oke", el.id);
+        }
+    }
 }
 
 
