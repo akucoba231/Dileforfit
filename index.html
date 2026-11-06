@@ -993,6 +993,8 @@ li {
             </div>
         </div>
 
+
+
         <div id="modalPilihDaftar" class="modal-overlay">
             <div class="modal-content">
                 <h3 style="color:#0288D1; font-weight:900;" class="dynamic-text">Daftar Sebagai</h3>
@@ -1212,7 +1214,110 @@ li {
             <div id="tabPanduanGuru" class="role-btn" onclick="gantiTabPanduan('guru')">👨‍🏫 Panduan Guru</div>
         </div>
 
-        <div id="kontenPanduanContainer"></div>
+        <div id="kontenPanduanContainer" ></div>
+    </div>
+
+        <!-- HALAMAN PANDUAN Pengerjaan TKJI (SISWA & GURU) -->
+    <div id="page-petunjuk-tkji" class="page" data-title="📖 Panduan Pengerjaan" data-parent="page-asesmen-fisik" style="text-align: left;">
+        <div class="top-bar">
+            <button class="btn-back-ios" onclick="nav('page-asesmen-fisik')">
+                <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg> Kembali
+            </button>
+        </div>
+        <div class="breadcrumb-container"></div>
+
+        <div id="kontenPanduanTKJI">
+            <div class="content-box" style="margin-bottom: 20px; border-color: #A5D6A7; background: #ECFDF5; text-align: left; padding: 15px; border-radius: 8px; border-style: solid; border-width: 1px;">
+                <h3 style="color: #2E7D32; margin-top: 0; font-weight: 900; font-size: 16px;">🏃‍♂️ Tahap Pelaksanaan</h3>
+                <p style="margin: 0; font-size: 13px; color: #064E3B; font-weight: 700; line-height: 1.6;">
+                    Ketentuan pokok: TKJI merupakan satu rangkaian tes yang harus dilaksanakan secara berurutan, terus-menerus, dan tidak terputus, dengan jeda perpindahan antar-butir tes tidak lebih dari 3 menit. Urutan butir tes bersifat baku dan tidak boleh diubah-ubah.
+                </p>
+            </div>
+
+            <div class="capaian-container">
+                <!-- 1. Lari Cepat -->
+                <div class="card-capaian" style="margin-bottom: 16px; border: 1px solid #E2E8F0; padding: 16px; border-radius: 8px;">
+                    <div class="card-capaian-title" style="color: #2E7D32; font-weight: bold; margin-bottom: 10px; font-size: 15px;">
+                        <span>⏱️</span> 1. Lari Cepat (60 meter)
+                    </div>
+                    <div class="card-capaian-content">
+                        <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Langkah Pelaksanaan:</p>
+                        <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                            <li style="margin-bottom: 4px;">Peserta berdiri di belakang garis start dengan sikap start berdiri.</li>
+                            <li style="margin-bottom: 4px;">Pada aba-aba "ya", peserta lari secepat mungkin menempuh jarak 60 meter hingga melewati garis finish.</li>
+                            <li>Pengukuran waktu dilakukan dari aba-aba "ya" sampai peserta melintasi garis finish, dicatat sampai persepuluh detik.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 2. Gantung Angkat Tubuh -->
+                <div class="card-capaian" style="margin-bottom: 16px; border: 1px solid #E2E8F0; padding: 16px; border-radius: 8px;">
+                    <div class="card-capaian-title" style="color: #2E7D32; font-weight: bold; margin-bottom: 10px; font-size: 15px;">
+                        <span>💪</span> 2. Gantung Angkat Tubuh / Gantung Siku Tekuk (60 detik)
+                    </div>
+                    <div class="card-capaian-content">
+                        <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Langkah Pelaksanaan:</p>
+                        <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                            <li style="margin-bottom: 4px;">Peserta bergantung pada palang tunggal dengan kedua tangan selebar bahu.</li>
+                            <li style="margin-bottom: 4px;">Untuk putra: mengangkat tubuh hingga dagu melewati palang, dilakukan berulang selama 60 detik (dihitung jumlah repetisi).</li>
+                            <li>Untuk putri: posisi gantung siku tekuk dipertahankan selama mungkin, dicatat dalam satuan detik.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 3. Baring Duduk -->
+                <div class="card-capaian" style="margin-bottom: 16px; border: 1px solid #E2E8F0; padding: 16px; border-radius: 8px;">
+                    <div class="card-capaian-title" style="color: #2E7D32; font-weight: bold; margin-bottom: 10px; font-size: 15px;">
+                        <span>🧎</span> 3. Baring Duduk / Sit-Up (60 detik)
+                    </div>
+                    <div class="card-capaian-content">
+                        <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Langkah Pelaksanaan:</p>
+                        <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                            <li style="margin-bottom: 4px;">Peserta berbaring telentang, kedua lutut ditekuk ± 90°, jari tangan berselang-seling di belakang kepala.</li>
+                            <li style="margin-bottom: 4px;">Petugas memegang/menahan kedua pergelangan kaki peserta.</li>
+                            <li>Peserta bangun ke posisi duduk hingga kedua siku menyentuh paha, lalu kembali ke posisi awal; dihitung jumlah ulangan yang benar dalam 60 detik.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 4. Loncat Tegak -->
+                <div class="card-capaian" style="margin-bottom: 16px; border: 1px solid #E2E8F0; padding: 16px; border-radius: 8px;">
+                    <div class="card-capaian-title" style="color: #2E7D32; font-weight: bold; margin-bottom: 10px; font-size: 15px;">
+                        <span>📏</span> 4. Loncat Tegak / Vertical Jump
+                    </div>
+                    <div class="card-capaian-content">
+                        <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Langkah Pelaksanaan:</p>
+                        <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                            <li style="margin-bottom: 4px;">Ujung jari tangan peserta diolesi serbuk kapur, lalu peserta berdiri menyamping papan skala dan meraih setinggi mungkin (tanpa jinjit) untuk menandai raihan awal.</li>
+                            <li style="margin-bottom: 4px;">Peserta meloncat setinggi mungkin sambil menepuk papan skala; dilakukan 3 kali percobaan.</li>
+                            <li>Selisih antara raihan tertinggi saat loncatan dan raihan awal menjadi skor loncat tegak.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 5. Lari Jarak Menengah -->
+                <div class="card-capaian" style="margin-bottom: 16px; border: 1px solid #E2E8F0; padding: 16px; border-radius: 8px;">
+                    <div class="card-capaian-title" style="color: #2E7D32; font-weight: bold; margin-bottom: 10px; font-size: 15px;">
+                        <span>🏃</span> 5. Lari Jarak Menengah (1200 meter)
+                    </div>
+                    <div class="card-capaian-content">
+                        <p style="margin: 0 0 6px 0; color: #2E7D32; font-weight: 800;">Langkah Pelaksanaan:</p>
+                        <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.5;">
+                            <li style="margin-bottom: 4px;">Peserta berdiri di belakang garis start dengan sikap start berdiri.</li>
+                            <li style="margin-bottom: 4px;">Pada aba-aba "ya", peserta berlari menempuh jarak 1200 meter secepat mungkin.</li>
+                            <li>Waktu tempuh dicatat dalam menit dan detik sebagai indikator daya tahan kardiorespirasi.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Penutup Tahap -->
+            <div class="content-box" style="margin-top: 20px; border-color: #93C5FD; background: #EFF6FF; text-align: left; padding: 15px; border-radius: 8px; border-style: solid; border-width: 1px;">
+                <p style="margin: 0; font-size: 13px; color: #1E3A8A; font-weight: 700; line-height: 1.6;">
+                    📌 Catatan Penutup: Seluruh nilai kasar (raw score) tiap butir tes kemudian dikonversi ke tabel nilai TKJI sesuai kelompok usia dan jenis kelamin.
+                </p>
+            </div>
+        </div>
     </div>
 
     <div id="page-akun" class="page" data-title="👤 Pengaturan Akun" data-parent="page-dashboard">
@@ -1988,8 +2093,8 @@ li {
 // Tambahan untuk bagian petunjuk tes TKJI
 
   let petunjuk_tkji =  {
-  "nama_tahap": "II. Tahap Pelaksanaan",
-  "ketentuan_pokok": "Ketentuan pokok: TKJI merupakan satu rangkaian tes yang harus dilaksanakan secara berurutan, terus-menerus, dan tidak terputus, dengan jeda perpindahan antar-butir tes tidak lebih dari 3 menit. Urutan butir tes bersifat baku dan tidak boleh diubah-ubah.",
+  "nama_tahap": "Tahap Pelaksanaan",
+  "ketentuan_pokok": "TKJI merupakan satu rangkaian tes yang harus dilaksanakan secara berurutan, terus-menerus, dan tidak terputus, dengan jeda perpindahan antar-butir tes tidak lebih dari 3 menit. Urutan butir tes bersifat baku dan tidak boleh diubah-ubah.",
   "rincian": [
     {
       "judul_poin": "1. Lari Cepat (60 meter)",
@@ -2162,7 +2267,7 @@ li {
         if(targetId === 'page-tutorial-latihan') renderTutorialMenu();
         if(targetId === 'page-tutorial-detail') renderTutorialDetail();
         if(targetId === 'page-manajemen-absensi') renderTabelAbsensi(); // <-- TAMBAHAN absensi
-        if(targetId === 'page-asesmen-fisik') panduanAsesmen();
+        if(targetId === 'page-asesmen-fisik') //panduanAsesmen();
         if(targetId === 'page-riwayat-latihan-guru') renderTabelSiswaLatihanGuru();
         if(targetId === 'page-panduan') renderHalamanPanduan();
 
@@ -4265,7 +4370,7 @@ li {
     }
 
     // untuk disembunyikan
-    else if(targetId.includes('page-asesmen') || targetId.includes('page-manajemen-') || targetId === 'page-akun' || targetId === 'page-riwayat-absensi' || targetId === 'page-riwayat-asesmen' || targetId === 'page-rincian-evaluasi' || targetId === 'page-riwayat-latihan-guru' || targetId === 'page-panduan' || targetId.includes('page-rincian')){
+    else if(targetId.includes('page-asesmen') || targetId.includes('page-manajemen-') || targetId === 'page-akun' || targetId === 'page-riwayat-absensi' || targetId === 'page-riwayat-asesmen' || targetId === 'page-rincian-evaluasi' || targetId === 'page-riwayat-latihan-guru' || targetId === 'page-panduan' || targetId.includes('page-rincian') || targetId === 'page-petunjuk-tkji' ){
       btnNext.style.visibility = "hidden";
     }
     /* else if(targetId === 'page-riwayat-asesmen'){
@@ -4716,9 +4821,54 @@ function bukaModalAbsen(){
                 document.getElementById('modalAbsensiSiswa').style.display = 'flex';
 }
 
+/*
+function halamanPanduanTKJI(){
+    let isiPage = document.getElementById('kontenPanduanTKJI');
+    isiPage.innerHTML = ""; // untuk reset
+
+    for(let key in petunjuk_tkji){
+        if(typeof petunjuk_tkji[key] === "object"){
+            // lakukan iterasi
+            iterasiItem('ol', petunjuk_tkji[key], isiPage);
+        }
+        else {
+            // render
+            let p = document.createElement('p');
+            p.textContent = petunjuk_tkji[key];
+            isiPage.appendChild(p)
+        }
+    }
+
+    console.log(isiPage)
+}
+
+function iterasiItem(jenis, data, target){
+    // data di sini memang array guys dan masih array / object
+    let wrapper = document.createElement(jenis);
+
+    for(let key in data){
+        // data merupakan atribut rincian = array of object
+        if(typeof data[key] === "object"){
+            // iterasi lagi
+            iterasiItem('ul', data[key], wrapper);
+            //console.log('Array : ', data[key]);
+        }
+        // karena isi rincian adalah object, otomatis bagian ini hampir tidak akan pernah terpanggil
+        else {
+            let li = document.createElement('li');
+            li.textContent = data[key];
+            wrapper.appendChild(li);
+        }
+    }
+
+    target.appendChild(wrapper);
+}
+*/
+
 function panduanAsesmen(){
-    showModal("Petunjuk","Lakukan gerakan olah raga sesuai daftar asesmen berikut. \n Tuliskan hasilnya pada kolom yang disediakan sesuai contoh. \n \n Tekan tombol 'Simpan Sementara' jika asesmen belum selesai di sesi pertemuan sekarang. \n Tekan tombol 'Kirim Asesmen' untuk mengirim hasil asesmen ke guru jika semua daftar asesmen telah dilaksanakan. \n \n PERINGATAN : data asesmen setelah dikirim tidak bisa diubah kembali, periksa setiap kolom yang telah diisi sebelum dikirim.");
-    
+    // showModal("Petunjuk","Lakukan gerakan olah raga sesuai daftar asesmen berikut. \n Tuliskan hasilnya pada kolom yang disediakan sesuai contoh. \n \n Tekan tombol 'Simpan Sementara' jika asesmen belum selesai di sesi pertemuan sekarang. \n Tekan tombol 'Kirim Asesmen' untuk mengirim hasil asesmen ke guru jika semua daftar asesmen telah dilaksanakan. \n \n PERINGATAN : data asesmen setelah dikirim tidak bisa diubah kembali, periksa setiap kolom yang telah diisi sebelum dikirim.");
+    //halamanPanduanTKJI();
+    nav('page-petunjuk-tkji');
 }
 
 function panduanRegistrasi(){
