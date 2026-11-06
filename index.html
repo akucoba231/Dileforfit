@@ -1984,6 +1984,57 @@ li {
 <script src="new_dataPermainan.js"></script>
 
 <script>
+
+// Tambahan untuk bagian petunjuk tes TKJI
+
+  let petunjuk_tkji =  {
+  "nama_tahap": "II. Tahap Pelaksanaan",
+  "ketentuan_pokok": "Ketentuan pokok: TKJI merupakan satu rangkaian tes yang harus dilaksanakan secara berurutan, terus-menerus, dan tidak terputus, dengan jeda perpindahan antar-butir tes tidak lebih dari 3 menit. Urutan butir tes bersifat baku dan tidak boleh diubah-ubah.",
+  "rincian": [
+    {
+      "judul_poin": "1. Lari Cepat (60 meter)",
+      "isi": [
+        "Peserta berdiri di belakang garis start dengan sikap start berdiri.",
+        "Pada aba-aba \"ya\", peserta lari secepat mungkin menempuh jarak 60 meter hingga melewati garis finish.",
+        "Pengukuran waktu dilakukan dari aba-aba \"ya\" sampai peserta melintasi garis finish, dicatat sampai persepuluh detik."
+      ]
+    },
+    {
+      "judul_poin": "2. Gantung Angkat Tubuh / Gantung Siku Tekuk (60 detik)",
+      "isi": [
+        "Peserta bergantung pada palang tunggal dengan kedua tangan selebar bahu.",
+        "Untuk putra: mengangkat tubuh hingga dagu melewati palang, dilakukan berulang selama 60 detik (dihitung jumlah repetisi).",
+        "Untuk putri: posisi gantung siku tekuk dipertahankan selama mungkin, dicatat dalam satuan detik."
+      ]
+    },
+    {
+      "judul_poin": "3. Baring Duduk / Sit-Up (60 detik)",
+      "isi": [
+        "Peserta berbaring telentang, kedua lutut ditekuk ± 90°, jari tangan berselang-seling di belakang kepala.",
+        "Petugas memegang/menahan kedua pergelangan kaki peserta.",
+        "Peserta bangun ke posisi duduk hingga kedua siku menyentuh paha, lalu kembali ke posisi awal; dihitung jumlah ulangan yang benar dalam 60 detik."
+      ]
+    },
+    {
+      "judul_poin": "4. Loncat Tegak / Vertical Jump",
+      "isi": [
+        "Ujung jari tangan peserta diolesi serbuk kapur, lalu peserta berdiri menyamping papan skala dan meraih setinggi mungkin (tanpa jinjit) untuk menandai raihan awal.",
+        "Peserta meloncat setinggi mungkin sambil menepuk papan skala; dilakukan 3 kali percobaan.",
+        "Selisih antara raihan tertinggi saat loncatan dan raihan awal menjadi skor loncat tegak."
+      ]
+    },
+    {
+      "judul_poin": "5. Lari Jarak Menengah (1200 meter)",
+      "isi": [
+        "Peserta berdiri di belakang garis start dengan sikap start berdiri.",
+        "Pada aba-aba \"ya\", peserta berlari menempuh jarak 1200 meter secepat mungkin.",
+        "Waktu tempuh dicatat dalam menit dan detik sebagai indikator daya tahan kardiorespirasi."
+      ]
+    }
+  ],
+  "penutup_tahap": "Seluruh nilai kasar (raw score) tiap butir tes kemudian dikonversi ke tabel nilai TKJI sesuai kelompok usia dan jenis kelamin."
+}
+    
 // ==========================================
 // 1. STRUKTUR DATA UTAMA & INISIALISASI
 // ==========================================
@@ -4667,6 +4718,7 @@ function bukaModalAbsen(){
 
 function panduanAsesmen(){
     showModal("Petunjuk","Lakukan gerakan olah raga sesuai daftar asesmen berikut. \n Tuliskan hasilnya pada kolom yang disediakan sesuai contoh. \n \n Tekan tombol 'Simpan Sementara' jika asesmen belum selesai di sesi pertemuan sekarang. \n Tekan tombol 'Kirim Asesmen' untuk mengirim hasil asesmen ke guru jika semua daftar asesmen telah dilaksanakan. \n \n PERINGATAN : data asesmen setelah dikirim tidak bisa diubah kembali, periksa setiap kolom yang telah diisi sebelum dikirim.");
+    
 }
 
 function panduanRegistrasi(){
