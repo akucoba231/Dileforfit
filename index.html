@@ -5858,68 +5858,162 @@ function unduh_materi(objek) {
     }
 
     // ══════════════════════════════════════════
-    //  EKSPOR: buka di tab baru → auto download
+    //  EKSPOR: multi-platform download strategy
+    //  1. Android WebView  → window.Android.savePdfBase64()
+    //  2. iOS / browser    → <a download> dengan blob URL
+    //  3. Fallback         → doc.save() jsPDF built-in
     // ══════════════════════════════════════════
     const namaFile = 'Materi_' + (objek.nama || 'Latihan').replace(/\s+/g, '_') + '.pdf';
-    const pdfBase64 = doc.output('datauristring');  // 'data:application/pdf;base64,...'
 
-    const newTab = window.open('', '_blank');
-    if (newTab) {
-        newTab.document.write(`<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <title>Unduh Materi — ${objek.nama || 'Latihan'}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 20px; }
-    .card { background: white; border-radius: 16px; padding: 40px 48px; box-shadow: 0 4px 24px rgba(0,0,0,.12); text-align: center; max-width: 420px; width: 90%; }
-    .logo { font-size: 22px; font-weight: 800; color: #0F4C96; letter-spacing: .5px; }
-    .sub  { font-size: 12px; color: #64748b; margin-top: 2px; }
-    hr    { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
-    .title { font-size: 15px; font-weight: 600; color: #1e293b; }
-    .desc  { font-size: 13px; color: #64748b; margin-top: 6px; }
-    .btn { display: inline-block; margin-top: 24px; padding: 12px 32px; background: #0F4C96; color: white; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; transition: background .2s; cursor: pointer; border: none; }
-    .btn:hover { background: #1a65c5; }
-    .note { font-size: 11px; color: #94a3b8; margin-top: 10px; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="logo">DIleforfit</div>
-    <div class="sub">DIgital Learning for Physical Fitness</div>
-    <hr>
-    <div class="title">📄 ${objek.nama || 'Materi Latihan'}</div>
-    <div class="desc">${objek.nama_lokal ? '(' + objek.nama_lokal + ')&nbsp;•&nbsp;' : ''}Level: ${objek.level || '-'}</div>
-    <a class="btn" id="dlBtn">⬇ Unduh PDF</a>
-    <div class="note">File akan terunduh otomatis. Jika tidak, klik tombol di atas.</div>
-  </div>
-  <script>
-    const base64 = "${pdfBase64.replace(/"/g, '\\"')}";
-    const filename = "${namaFile}";
-    // Auto download
-    const link = document.createElement('a');
-    link.href = base64;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    // Tombol manual
-    document.getElementById('dlBtn').addEventListener('click', function() {
-      const l = document.createElement('a');
-      l.href = base64;
-      l.download = filename;
-      document.body.appendChild(l);
-      l.click();
-      document.body.removeChild(l);
+    // ── 1. Android WebView ──────────────────────────────────────────
+    if (window.Android && typeof window.Android.savePdfBase64 === 'function') {
+        // Ambil pure base64 (tanpa prefix data URI) untuk dikirim ke Kotlin
+        const rawBase64 = doc.output('datauristring').split(',')[1];
+        window.Android.savePdfBase64(rawBase64, namaFile);
+        return;
+    }
+
+    // ── 2. iOS Safari & browser modern: Blob URL ────────────────────
+    //    Blob URL lebih andal dari data URI panjang di mobile browser
+    const pdfBlob   = doc.output('blob');
+    const blobURL   = URL.createObjectURL(pdfBlob);
+
+    // Coba <a download> langsung (Chrome desktop/Android Chrome, Firefox, Edge)
+    const aLink = document.createElement('a');
+    aLink.href     = blobURL;
+    aLink.download = namaFile;
+    document.body.appendChild(aLink);
+    aLink.click();
+    document.body.removeChild(aLink);
+
+    // iOS Safari TIDAK mendukung <a download> → tampilkan modal unduhan
+    // Deteksi iOS: ua mengandung iPhone/iPad/iPod ATAU MacIntel + maxTouchPoints
+    const isIOS = /iP(hone|ad|od)/i.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (isIOS) {
+        // Pada iOS, buka PDF di tab baru agar bisa di-share/save via Share Sheet
+        // (iOS tidak bisa download langsung, user harus Share → Save to Files)
+        const iOSTab = window.open(blobURL, '_blank');
+        if (!iOSTab) {
+            // Popup diblokir → tampilkan modal petunjuk fallback base64
+            _showUnduhModal(doc, namaFile, objek);
+        }
+        return;
+    }
+
+    // ── 3. Fallback jika <a download> diblokir (popup blocker, dll) ──
+    //    Revoker dijadwalkan setelah 60 detik agar download sempat jalan
+    setTimeout(() => URL.revokeObjectURL(blobURL), 60000);
+}
+
+// ── Modal unduhan fallback (iOS popup diblokir / edge case) ──────────
+function _showUnduhModal(doc, namaFile, objek) {
+    // Gunakan base64 data URI sebagai href agar bisa dibuka manual
+    const dataUri = doc.output('datauristring');
+
+    // Hapus modal lama jika ada
+    const oldModal = document.getElementById('_unduhMateriModal');
+    if (oldModal) oldModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = '_unduhMateriModal';
+    modal.innerHTML = `
+    <div id="_umOverlay" style="
+        position:fixed;inset:0;z-index:99999;
+        background:rgba(0,0,0,.55);
+        display:flex;align-items:flex-end;justify-content:center;
+        font-family:'Segoe UI',sans-serif;
+    ">
+      <div style="
+        background:#fff;border-radius:20px 20px 0 0;
+        width:100%;max-width:520px;
+        padding:28px 24px 36px;
+        box-shadow:0 -4px 32px rgba(0,0,0,.18);
+        animation:_slideUp .3s ease;
+      ">
+        <!-- handle bar -->
+        <div style="width:40px;height:4px;background:#e2e8f0;border-radius:4px;margin:0 auto 20px;"></div>
+
+        <!-- logo -->
+        <div style="text-align:center;margin-bottom:4px;">
+          <span style="font-size:18px;font-weight:800;color:#0F4C96;">DIleforfit</span><br>
+          <span style="font-size:11px;color:#94a3b8;">DIgital Learning for Physical Fitness</span>
+        </div>
+
+        <hr style="border:none;border-top:1px solid #f1f5f9;margin:16px 0;">
+
+        <!-- info latihan -->
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-size:15px;font-weight:700;color:#1e293b;">📄 ${objek.nama || 'Materi Latihan'}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px;">
+            ${objek.nama_lokal ? '(' + objek.nama_lokal + ') &nbsp;•&nbsp; ' : ''}Level: ${objek.level || '-'}
+          </div>
+        </div>
+
+        <!-- tombol utama: buka PDF -->
+        <a href="${dataUri}" target="_blank" style="
+          display:block;width:100%;padding:14px;
+          background:#0F4C96;color:#fff;
+          border-radius:12px;text-align:center;
+          font-size:15px;font-weight:700;
+          text-decoration:none;box-sizing:border-box;
+          margin-bottom:10px;
+        ">🔗 Buka PDF di Browser</a>
+
+        <!-- tombol fallback base64 FileReader -->
+        <button onclick="_unduhViaFileReader('${dataUri.replace(/'/g,"\\'")}','${namaFile}')" style="
+          display:block;width:100%;padding:13px;
+          background:#f8fafc;color:#0F4C96;
+          border:2px solid #0F4C96;border-radius:12px;
+          font-size:14px;font-weight:600;cursor:pointer;
+          box-sizing:border-box;margin-bottom:10px;
+        ">⬇ Unduh via Base64</button>
+
+        <!-- tutup -->
+        <button onclick="document.getElementById('_unduhMateriModal').remove()" style="
+          display:block;width:100%;padding:11px;
+          background:transparent;color:#94a3b8;
+          border:none;font-size:13px;cursor:pointer;
+        ">Tutup</button>
+      </div>
+    </div>
+    <style>
+      @keyframes _slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    </style>`;
+
+    document.body.appendChild(modal);
+
+    // Tutup jika klik overlay
+    document.getElementById('_umOverlay').addEventListener('click', function(e) {
+        if (e.target === this) modal.remove();
     });
-  <\/script>
-</body>
-</html>`);
-        newTab.document.close();
-    } else {
-        // Fallback: download langsung jika popup diblokir
-        doc.save(namaFile);
+}
+
+// ── Unduh via FileReader (base64 → Blob → ObjectURL) ────────────────
+// Metode ini lebih handal di beberapa Android browser yang memblokir data URI langsung
+function _unduhViaFileReader(dataUri, namaFile) {
+    try {
+        // Pisahkan header dan data
+        const parts    = dataUri.split(',');
+        const byteStr  = atob(parts[1]);
+        const ab       = new ArrayBuffer(byteStr.length);
+        const ia       = new Uint8Array(ab);
+        for (let i = 0; i < byteStr.length; i++) ia[i] = byteStr.charCodeAt(i);
+
+        const blob    = new Blob([ab], { type: 'application/pdf' });
+        const blobURL = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href     = blobURL;
+        a.download = namaFile;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        setTimeout(() => URL.revokeObjectURL(blobURL), 30000);
+    } catch (err) {
+        alert('Gagal mengunduh file. Silakan coba tombol "Buka PDF di Browser".\n\nDetail: ' + err.message);
     }
 }
 // ==========================================
